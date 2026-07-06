@@ -115,6 +115,7 @@ class Engine:
         self,
         iteration_label: str,
         exception: Optional[Exception] = None,
+        update_latest: bool = True,
     ) -> Path:
         """
         Serialize the Engine and environment workspace to a checkpoint directory.
@@ -127,6 +128,8 @@ class Engine:
         Args:
             iteration_label: Directory name segment, e.g. "iter_003" or "failure".
             exception: If provided, include traceback in checkpoint metadata.
+            update_latest: If True, update the ``checkpoints/latest`` symlink to
+                point to this checkpoint. Failure checkpoints should pass False.
 
         Returns:
             Path to the checkpoint directory.
@@ -164,8 +167,10 @@ class Engine:
             json.dump(metadata, f, indent=2)
 
         # Update the "latest" symlink so consumers always have a stable path to
-        # the most recent checkpoint, regardless of where save_checkpoint is called.
-        if self._run_base_dir is not None:
+        # the most recent successful checkpoint. Failure checkpoints must not
+        # overwrite this symlink, otherwise resume from "latest" would restart
+        # from the failing state.
+        if update_latest and self._run_base_dir is not None:
             update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
 
         self.logger.info(f"Checkpoint saved: {checkpoint_dir}")
@@ -204,7 +209,9 @@ class Engine:
 
     def _save_failure_checkpoint(self, exc: Exception) -> Path:
         """Save a failure checkpoint and return its path."""
-        checkpoint_dir = self.save_checkpoint("failure", exception=exc)
+        checkpoint_dir = self.save_checkpoint(
+            "failure", exception=exc, update_latest=False
+        )
         self.logger.error(
             f"Failure checkpoint saved to {checkpoint_dir}: {exc}"
         )
@@ -402,8 +409,6 @@ class Engine:
                 self.planner.update_progress(summary)
                 self.current_iteration += 1
 
-            self.summary_data["iterations"].append(iteration_data)
-
             # Evaluate communication
             if iteration_data["communications"]:
                 iteration_data_communications = iteration_data.get("communications")
@@ -429,6 +434,8 @@ class Engine:
             # self.evaluator.evaluate_planning(iteration_data_summary, agent_profiles, agent_tasks_str, results_str)
             # self.evaluator.evaluate_kpi(self.task, results_str)
             self.evaluator.metrics["planning_score"].append(-1)
+
+            self.summary_data["iterations"].append(iteration_data)
 
             # Initial assignment is a checkpoint boundary.
             checkpoint_dir = self.save_checkpoint(
@@ -545,6 +552,7 @@ class Engine:
                     continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
                 self.summary_data["iterations"].append(iteration_data)
+
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
@@ -710,6 +718,7 @@ class Engine:
                 continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
                 self.summary_data["iterations"].append(iteration_data)
+
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
@@ -890,6 +899,7 @@ class Engine:
                 )
                 iteration_data["continue_simulation"] = continue_simulation
                 self.summary_data["iterations"].append(iteration_data)
+
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
@@ -1024,6 +1034,7 @@ class Engine:
                 continue_simulation = self.planner.decide_next_step(results)
                 iteration_data["continue_simulation"] = continue_simulation
                 self.summary_data["iterations"].append(iteration_data)
+
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
