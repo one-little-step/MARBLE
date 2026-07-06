@@ -76,6 +76,9 @@ def main() -> None:
             sys.exit(1)
 
         metadata_path = checkpoint_dir / "checkpoint.json"
+        if not metadata_path.is_file():
+            logging.error(f"Checkpoint metadata not found: {metadata_path}")
+            sys.exit(1)
         with open(metadata_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
 
