@@ -13,6 +13,7 @@ def test_interrupt_and_resume_star_coordination():
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir_path = Path(tmpdir)
         config = Config.load("marble/configs/coding_config/coding_config_minimal.yaml")
+        config.coordination_mode = "star"
         config.environment["max_iterations"] = 2
         config.environment["workspace_dir"] = str(tmpdir_path / "workspace")
         config.output["file_path"] = str(tmpdir_path / "output.jsonl")
@@ -113,6 +114,8 @@ def test_interrupt_and_resume_star_coordination():
             # Resume from latest completed checkpoint (iter_001).
             latest = tmpdir_path / "checkpoints" / "latest"
             assert latest.is_symlink()
+            assert latest.resolve().name.startswith("iter_")
+            assert latest.resolve().exists()
 
             with open(latest / "engine.pkl", "rb") as f:
                 restored = pickle.load(f)
@@ -125,4 +128,9 @@ def test_interrupt_and_resume_star_coordination():
             all_iterations = []
             for line in lines:
                 all_iterations.extend(json.loads(line)["iterations"])
-            assert len(all_iterations) >= 2
+            iteration_numbers = [it["iteration"] for it in all_iterations]
+            # With max_iterations=2, the failed run completes iter_001 and fails
+            # during iter_002; after resuming we should end with exactly two
+            # completed iterations and no duplicates.
+            assert len(all_iterations) == 2
+            assert sorted(iteration_numbers) == [1, 2]
