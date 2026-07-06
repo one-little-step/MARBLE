@@ -103,6 +103,11 @@ class Engine:
         )
         self.max_iterations = config.environment.get("max_iterations", 10)
         self.current_iteration = 0
+        # Holds the running summary record for this simulation. Persisted as
+        # instance state so that resuming from a checkpoint can continue
+        # appending to the same record instead of starting over and producing
+        # duplicate JSONL entries.
+        self.summary_data: Dict[str, Any] = {}
 
         self.logger.info("Engine initialized.")
 
@@ -113,6 +118,11 @@ class Engine:
     ) -> Path:
         """
         Serialize the Engine and environment workspace to a checkpoint directory.
+
+        The pickled Engine object (``engine.pkl``) contains the Config instance.
+        Secrets such as API keys should therefore remain in environment variables
+        and never be placed in config files; otherwise they would be persisted on
+        disk inside the checkpoint.
 
         Args:
             iteration_label: Directory name segment, e.g. "iter_003" or "failure".
@@ -152,6 +162,11 @@ class Engine:
 
         with open(checkpoint_dir / "checkpoint.json", "w", encoding="utf-8") as f:
             json.dump(metadata, f, indent=2)
+
+        # Update the "latest" symlink so consumers always have a stable path to
+        # the most recent checkpoint, regardless of where save_checkpoint is called.
+        if self._run_base_dir is not None:
+            update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
 
         self.logger.info(f"Checkpoint saved: {checkpoint_dir}")
         return checkpoint_dir
@@ -298,11 +313,14 @@ class Engine:
         Graph-based coordination mode.
         """
         try:
-            summary_data = {
-                "task": self.task,
-                "coordination_mode": self.coordinate_mode,
-                "iterations": [],
-            }
+            # When resuming from a checkpoint, summary_data is already partially
+            # populated; only initialize it on the first entry into this method.
+            if not self.summary_data:
+                self.summary_data = {
+                    "task": self.task,
+                    "coordination_mode": self.coordinate_mode,
+                    "iterations": [],
+                }
             # Initial assignment: Distribute the overall task to each agent
             self.logger.info("Initial task distribution to all agents.")
             initial_tasks = {
@@ -384,7 +402,7 @@ class Engine:
                 self.planner.update_progress(summary)
                 self.current_iteration += 1
 
-            summary_data["iterations"].append(iteration_data)
+            self.summary_data["iterations"].append(iteration_data)
 
             # Evaluate communication
             if iteration_data["communications"]:
@@ -416,8 +434,6 @@ class Engine:
             checkpoint_dir = self.save_checkpoint(
                 f"iter_{self.current_iteration:03d}"
             )
-            if self._run_base_dir is not None:
-                update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
 
             end_on_iter_0 = False
             if not continue_simulation:
@@ -528,12 +544,10 @@ class Engine:
                 else:
                     continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
-                summary_data["iterations"].append(iteration_data)
+                self.summary_data["iterations"].append(iteration_data)
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
-                if self._run_base_dir is not None:
-                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -546,13 +560,13 @@ class Engine:
                 #     break
             # At the end, add the scores to summary_data
 
-            summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
-            summary_data["communication_scores"] = self.evaluator.metrics[
+            self.summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
+            self.summary_data["communication_scores"] = self.evaluator.metrics[
                 "communication_score"
             ]
-            summary_data["token_usage"] = self._get_totoal_token_usage()
-            summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
-            summary_data["total_milestones"] = self.evaluator.metrics[
+            self.summary_data["token_usage"] = self._get_totoal_token_usage()
+            self.summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
+            self.summary_data["total_milestones"] = self.evaluator.metrics[
                 "total_milestones"
             ]
             # if self.environment.name == 'Research Environment':
@@ -560,13 +574,13 @@ class Engine:
                 iteration_data_summary = iteration_data.get("summary")
                 assert isinstance(iteration_data_summary, str)
                 self.evaluator.evaluate_task_research(self.task, iteration_data_summary)
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine graph-based coordination loop completed.")
             elif self.environment.name == "World Simulation Environment":
                 self.evaluator.evaluate_task_world(self.task, iteration_data["summary"])
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine graph-based coordination loop completed.")
@@ -576,7 +590,7 @@ class Engine:
                         block_hit_rate = json.load(f)[-1]["block_hit_rate"]
                 except:
                     block_hit_rate = 0.0
-                summary_data["task_evaluation"] = block_hit_rate * 5
+                self.summary_data["task_evaluation"] = block_hit_rate * 5
             elif self.environment.name == "DB Environment":
                 self.evaluator.evaluate_task_db(
                     self.task,
@@ -585,7 +599,7 @@ class Engine:
                     self.config.task["number_of_labels_pred"],
                     self.config.task["root_causes"],
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine graph-based coordination loop completed.")
@@ -598,19 +612,22 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Graph-based coordination simulation completed.")
-            self._write_to_jsonl(summary_data)
+            self._write_to_jsonl(self.summary_data)
 
     def star_coordinate(self) -> None:
         """
         Centralized coordination mode.
         """
         try:
-            summary_data = {
-                "task": self.task,
-                "coordination_mode": self.coordinate_mode,
-                "iterations": [],
-                "final_output": "",
-            }
+            # When resuming from a checkpoint, summary_data is already partially
+            # populated; only initialize it on the first entry into this method.
+            if not self.summary_data:
+                self.summary_data = {
+                    "task": self.task,
+                    "coordination_mode": self.coordinate_mode,
+                    "iterations": [],
+                    "final_output": "",
+                }
             agents_results: List[Dict[str, Any]] = []
             while self.current_iteration < self.max_iterations:
                 iteration_data: Dict[str, Any] = {
@@ -692,12 +709,10 @@ class Engine:
                 # Decide whether to continue or terminate
                 continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
-                summary_data["iterations"].append(iteration_data)
+                self.summary_data["iterations"].append(iteration_data)
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
-                if self._run_base_dir is not None:
-                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -708,20 +723,20 @@ class Engine:
                     self.logger.info("Maximum iterations reached.")
                     break
             # At the end, add the scores to summary_data
-            summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
-            summary_data["communication_scores"] = self.evaluator.metrics[
+            self.summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
+            self.summary_data["communication_scores"] = self.evaluator.metrics[
                 "communication_score"
             ]
-            summary_data["token_usage"] = self._get_totoal_token_usage()
-            summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
-            summary_data["total_milestones"] = self.evaluator.metrics[
+            self.summary_data["token_usage"] = self._get_totoal_token_usage()
+            self.summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
+            self.summary_data["total_milestones"] = self.evaluator.metrics[
                 "total_milestones"
             ]
             if self.environment.name == "Research Environment":
                 self.evaluator.evaluate_task_research(
                     self.task, iteration_data["summary"]
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine graph-based coordination loop completed.")
@@ -731,7 +746,7 @@ class Engine:
                     self.evaluator.evaluate_code_quality(
                         task=self.task, code_result=code
                     )
-                    summary_data["code_quality"] = self.evaluator.metrics[
+                    self.summary_data["code_quality"] = self.evaluator.metrics[
                         "code_quality"
                     ]
                     self.logger.info(
@@ -740,7 +755,7 @@ class Engine:
                 self.logger.info("Engine star-based coordination loop completed.")
             elif self.environment.name == "World Simulation Environment":
                 self.evaluator.evaluate_task_world(self.task, iteration_data["summary"])
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine star-based coordination loop completed.")
@@ -752,7 +767,7 @@ class Engine:
                     self.config.task["number_of_labels_pred"],
                     self.config.task["root_causes"],
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine star-based coordination loop completed.")
@@ -765,7 +780,7 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Simulation completed.")
-            self._write_to_jsonl(summary_data)
+            self._write_to_jsonl(self.summary_data)
 
     def chain_coordinate(self) -> None:
         """
@@ -773,11 +788,14 @@ class Engine:
         """
         try:
             self.logger.info("Starting chain-based coordination.")
-            summary_data = {
-                "task": self.task,
-                "coordination_mode": self.coordinate_mode,
-                "iterations": [],
-            }
+            # When resuming from a checkpoint, summary_data is already partially
+            # populated; only initialize it on the first entry into this method.
+            if not self.summary_data:
+                self.summary_data = {
+                    "task": self.task,
+                    "coordination_mode": self.coordinate_mode,
+                    "iterations": [],
+                }
             # Start with the initial agent
             current_agent = self._select_initial_agent()
             if not current_agent:
@@ -871,12 +889,10 @@ class Engine:
                     [{"root_agent": result}]
                 )
                 iteration_data["continue_simulation"] = continue_simulation
-                summary_data["iterations"].append(iteration_data)
+                self.summary_data["iterations"].append(iteration_data)
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
-                if self._run_base_dir is not None:
-                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -888,24 +904,24 @@ class Engine:
             self.planner.update_progress(summary)
 
             # At the end, add the scores to summary_data
-            summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
-            summary_data["communication_scores"] = self.evaluator.metrics[
+            self.summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
+            self.summary_data["communication_scores"] = self.evaluator.metrics[
                 "communication_score"
             ]
-            summary_data["token_usage"] = self._get_totoal_token_usage()
-            summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
-            summary_data["total_milestones"] = self.evaluator.metrics[
+            self.summary_data["token_usage"] = self._get_totoal_token_usage()
+            self.summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
+            self.summary_data["total_milestones"] = self.evaluator.metrics[
                 "total_milestones"
             ]
             if self.environment.name == "Research Environment":
                 self.evaluator.evaluate_task_research(
                     self.task, iteration_data["summary"]
                 )
-                # summary_data['task_evaluation'] = self.evaluator.metrics["task_evaluation"]
+                # self.summary_data['task_evaluation'] = self.evaluator.metrics["task_evaluation"]
                 self.logger.info("Engine chain-based coordination loop completed.")
             elif self.environment.name == "World Simulation Environment":
                 self.evaluator.evaluate_task_world(self.task, iteration_data["summary"])
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine chain-based coordination loop completed.")
@@ -917,7 +933,7 @@ class Engine:
                     self.config.task["number_of_labels_pred"],
                     self.config.task["root_causes"],
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine chain-based coordination loop completed.")
@@ -930,8 +946,8 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Chain-based coordination simulation completed.")
-            summary_data["token_usage"] = self._get_totoal_token_usage()
-            self._write_to_jsonl(summary_data)
+            self.summary_data["token_usage"] = self._get_totoal_token_usage()
+            self._write_to_jsonl(self.summary_data)
 
     def tree_coordinate(self) -> None:
         """
@@ -939,11 +955,14 @@ class Engine:
         """
         try:
             self.logger.info("Starting tree-based coordination.")
-            summary_data = {
-                "task": self.task,
-                "coordination_mode": self.coordinate_mode,
-                "iterations": [],
-            }
+            # When resuming from a checkpoint, summary_data is already partially
+            # populated; only initialize it on the first entry into this method.
+            if not self.summary_data:
+                self.summary_data = {
+                    "task": self.task,
+                    "coordination_mode": self.coordinate_mode,
+                    "iterations": [],
+                }
 
             root_agent = self.graph.get_root_agent()
             if not root_agent:
@@ -1004,32 +1023,30 @@ class Engine:
                 # Decide whether to continue or terminate
                 continue_simulation = self.planner.decide_next_step(results)
                 iteration_data["continue_simulation"] = continue_simulation
-                summary_data["iterations"].append(iteration_data)
+                self.summary_data["iterations"].append(iteration_data)
                 checkpoint_dir = self.save_checkpoint(
                     f"iter_{self.current_iteration:03d}"
                 )
-                if self._run_base_dir is not None:
-                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
                     )
                     break
             # At the end, add the scores to summary_data
-            summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
-            summary_data["communication_scores"] = self.evaluator.metrics[
+            self.summary_data["planning_scores"] = self.evaluator.metrics["planning_score"]
+            self.summary_data["communication_scores"] = self.evaluator.metrics[
                 "communication_score"
             ]
-            summary_data["token_usage"] = self._get_totoal_token_usage()
-            summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
-            summary_data["total_milestones"] = self.evaluator.metrics[
+            self.summary_data["token_usage"] = self._get_totoal_token_usage()
+            self.summary_data["agent_kpis"] = self.evaluator.metrics["agent_kpis"]
+            self.summary_data["total_milestones"] = self.evaluator.metrics[
                 "total_milestones"
             ]
             if self.environment.name == "Research Environment":
                 self.evaluator.evaluate_task_research(
                     self.task, iteration_data["summary"]
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine graph-based coordination loop completed.")
@@ -1039,7 +1056,7 @@ class Engine:
                     self.evaluator.evaluate_code_quality(
                         task=self.task, code_result=code
                     )
-                    summary_data["code_quality"] = self.evaluator.metrics[
+                    self.summary_data["code_quality"] = self.evaluator.metrics[
                         "code_quality"
                     ]
                     self.logger.info(
@@ -1048,7 +1065,7 @@ class Engine:
                 self.logger.info("Engine tree-based coordination loop completed.")
             elif self.environment.name == "World Simulation Environment":
                 self.evaluator.evaluate_task_world(self.task, iteration_data["summary"])
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine tree-based coordination loop completed.")
@@ -1060,7 +1077,7 @@ class Engine:
                     self.config.task["number_of_labels_pred"],
                     self.config.task["root_causes"],
                 )
-                summary_data["task_evaluation"] = self.evaluator.metrics[
+                self.summary_data["task_evaluation"] = self.evaluator.metrics[
                     "task_evaluation"
                 ]
                 self.logger.info("Engine tree-based coordination loop completed.")
@@ -1073,7 +1090,7 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Tree-based coordination simulation completed.")
-            self._write_to_jsonl(summary_data)
+            self._write_to_jsonl(self.summary_data)
 
     def _execute_agent_task_recursive(self, agent: BaseAgent, task: str) -> Any:
         """
