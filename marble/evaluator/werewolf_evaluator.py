@@ -6,12 +6,11 @@ import sys
 import time
 from typing import Any, Dict, List, Optional
 
-import openai
 import yaml
-from openai import OpenAI
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from marble.environments.werewolf_env import WerewolfEnv
+from marble.llms.client_factory import get_model_name, get_openai_client
 
 
 class WerewolfEvaluator:
@@ -50,21 +49,9 @@ class WerewolfEvaluator:
 
         eval_config = config.get("eval_config", {})
 
-        self.base_url = eval_config.get("base_url", "https://api.openai.com/v1")
-        self.api_key = eval_config.get("api_key", "")
-        self.model_name = eval_config.get("model_name", "gpt-4o")
-
-        openai.api_base = self.base_url
-        openai.api_key = self.api_key
-
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        self.evaluator_dir = os.path.join(self.base_log_dir, f"eval_{timestamp}")
-        os.makedirs(self.evaluator_dir, exist_ok=True)
-
-        self.client = OpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key,
-        )
+        # Model/key/URL are driven by LLM_SOURCE in the environment.
+        self.model_name = get_model_name(preferred=eval_config.get("model_name"))
+        self.client = get_openai_client()
 
     def find_checkpoint_files(self, pattern="night") -> List[str]:
         """

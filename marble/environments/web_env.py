@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from litellm.utils import trim_messages
 
 from marble.environments.base_env import BaseEnvironment
+from marble.llms.client_factory import get_model_name
 
 
 class WebEnvironment(BaseEnvironment):
@@ -116,7 +117,7 @@ class WebEnvironment(BaseEnvironment):
         extracted_text = self.extract_text_from_html(content)
         trimmed_content = trim_messages(
             [{"role": "assistant", "content": extracted_text}],
-            "gpt-3.5-turbo",
+            get_model_name(),
             max_tokens=2048,
         )[0]["content"]
 

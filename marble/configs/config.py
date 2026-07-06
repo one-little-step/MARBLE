@@ -6,6 +6,8 @@ from typing import Any, Dict
 
 import yaml
 
+from marble.llms.client_factory import get_model_name
+
 
 class Config:
     """
@@ -23,7 +25,10 @@ class Config:
         self.relationships = data.get("relationships", [])
         self.agents = data.get("agents", [])
         self.metrics = data.get("metrics", {})
-        self.llm = data.get("llm", "")
+        # LLM model selection is driven by LLM_SOURCE in the environment.
+        # The config may optionally specify a model; if it matches the active
+        # source it is honored, otherwise the env-configured model wins.
+        self.llm = get_model_name(preferred=data.get("llm"))
         self.tools = data.get("tools", {})
         self.logger = data.get("logger", {})
         self.parallel = data.get("parallel", {})

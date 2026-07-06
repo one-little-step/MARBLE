@@ -5,8 +5,8 @@ import time
 from typing import Any, Dict
 
 import yaml
-from openai import OpenAI
 
+from marble.llms.client_factory import get_model_name, get_openai_client
 from marble.utils.eventbus import EventBus  # 假设 BaseAgent 在 base_agent_module 中
 
 
@@ -44,20 +44,15 @@ class WerewolfAgent:
         config_key = "villager_config" if is_villager else "werewolf_config"
         model_config = config.get(config_key, {})
         self.config = config
-        # Get and save API configuration details as attributes
-        self.base_url = model_config.get(
-            "base_url", "https://api.openai.com/v1"
-        )  # Default to OpenAI API
-        self.api_key = model_config.get(
-            "api_key", config.get("openai_api_key")
-        )  # Default to using general OpenAI API key
-        self.model_name = model_config.get("model_name", "gpt-4o")  # Default to GPT-4
+
+        # Model selection is driven by LLM_SOURCE in the environment.
+        # The config may optionally specify a model_name; if it matches the
+        # active source it is honored, otherwise the env-configured model wins.
+        self.model_name = get_model_name(preferred=model_config.get("model_name"))
         self.strategy = strategy
-        # Initialize the API client
-        self.client = OpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key,
-        )
+
+        # Initialize the API client from the active LLM_SOURCE.
+        self.client = get_openai_client()
 
         self.agent_id = config.get("agent_id")
         self.id = self.agent_id
@@ -84,7 +79,7 @@ class WerewolfAgent:
         # Print to terminal and write to log file
         init_message = (
             f"{self.role} agent '{self.agent_id}' initialized with role '{self.role}', "
-            f"using model '{self.model_name}', base URL '{self.base_url}'"
+            f"using model '{self.model_name}' (LLM_SOURCE={os.getenv('LLM_SOURCE', 'openai')})"
         )
         self._log_and_save(init_message)
 
@@ -356,7 +351,7 @@ class WerewolfAgent:
                     model=self.model_name,  # Use self.model_name instead of hardcoded model name
                     messages=messages,
                     tools=tools,
-                    tool_choice="required",
+                    tool_choice="auto",
                     temperature=0.7,  # Set temperature to 0.7 for more diverse results
                     n=1,
                 )
@@ -380,8 +375,8 @@ class WerewolfAgent:
 
         # Step 2: Define YAML template path
         yaml_paths = {
-            "werewolf_action": r"marble\agent\werewolf_prompts\werewolf_action.yaml",
-            "werewolf_discussion": r"marble\agent\werewolf_prompts\werewolf_discussion.yaml",
+            "werewolf_action": "marble/agent/werewolf_prompts/werewolf_action.yaml",
+            "werewolf_discussion": "marble/agent/werewolf_prompts/werewolf_discussion.yaml",
         }
         yaml_path = yaml_paths.get(event_type, None)
         if not yaml_path:
@@ -503,17 +498,17 @@ class WerewolfAgent:
 
         # Step 2: Define YAML path based on the action type
         yaml_paths = {
-            "witch_action": r"marble\agent\werewolf_prompts\witch_prompt.yaml",
-            "guard_action": r"marble\agent\werewolf_prompts\guard_prompt.yaml",
-            "run_for_sheriff": r"marble\agent\werewolf_prompts\run_for_sheriff.yaml",
-            "sheriff_speech": r"marble\agent\werewolf_prompts\sheriff_speech.yaml",
-            "vote_for_sheriff": r"marble\agent\werewolf_prompts\vote_for_sheriff.yaml",
-            "decide_speech_sequence": r"marble\agent\werewolf_prompts\decide_speech_sequence.yaml",
-            "seer_action": r"marble\agent\werewolf_prompts\seer_prompt.yaml",
-            "player_speech": r"marble\agent\werewolf_prompts\speech_prompt.yaml",
-            "vote_action": r"marble\agent\werewolf_prompts\vote_prompt.yaml",
-            "last_words": r"marble\agent\werewolf_prompts\last_word_prompt.yaml",
-            "badge_flow": r"marble\agent\werewolf_prompts\badge_flow.yaml",
+            "witch_action": "marble/agent/werewolf_prompts/witch_prompt.yaml",
+            "guard_action": "marble/agent/werewolf_prompts/guard_prompt.yaml",
+            "run_for_sheriff": "marble/agent/werewolf_prompts/run_for_sheriff.yaml",
+            "sheriff_speech": "marble/agent/werewolf_prompts/sheriff_speech.yaml",
+            "vote_for_sheriff": "marble/agent/werewolf_prompts/vote_for_sheriff.yaml",
+            "decide_speech_sequence": "marble/agent/werewolf_prompts/decide_speech_sequence.yaml",
+            "seer_action": "marble/agent/werewolf_prompts/seer_prompt.yaml",
+            "player_speech": "marble/agent/werewolf_prompts/speech_prompt.yaml",
+            "vote_action": "marble/agent/werewolf_prompts/vote_prompt.yaml",
+            "last_words": "marble/agent/werewolf_prompts/last_word_prompt.yaml",
+            "badge_flow": "marble/agent/werewolf_prompts/badge_flow.yaml",
         }
         yaml_path = yaml_paths.get(event_type, None)
 

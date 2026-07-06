@@ -1,0 +1,71 @@
+coordinate_mode: graph
+
+relationships:
+  - [agent1, agent2, "collaborates with"]
+  - [agent2, agent1, "collaborates with"]
+
+llm: ""
+
+environment:
+  type: Coding
+  name: "Coding Environment"
+  workspace_dir: "workspace"
+  max_iterations: 2
+
+task:
+  content: |-
+    Software Development Task:
+
+    Please write a Python program called 'SimpleCalculator' that supports addition, subtraction, multiplication, and division of two numbers. The program should handle invalid inputs gracefully (e.g., division by zero, non-numeric input) and include a simple command-line interface.
+
+    1. Implementation requirements:
+       - Implement functions for add, subtract, multiply, and divide.
+       - Handle division by zero with an appropriate error message.
+       - Provide a simple CLI that prompts the user for two numbers and an operation.
+       - Include basic input validation.
+
+    2. Project structure:
+       - solution.py (main implementation)
+
+    3. Development process:
+       - Developer: Create the code.
+       - Developer: Revise the code.
+
+    Please work together to complete this task following software engineering best practices.
+
+  output_format: |
+    The final deliverable should include:
+    solution.py
+
+agents:
+  - type: BaseAgent
+    agent_id: agent1
+    profile: |
+      I am a Senior Software Developer specialized in Python development.
+      I am good at creating the code framework from scratch based on the task description and requirements.
+      So I **have to** call "create_solution" action to create the code in the first iteration at first.
+      I **can't** call "give_advice_and_revise_code" action.
+
+  - type: BaseAgent
+    agent_id: agent2
+    profile: |
+      I am a Senior Software Developer specialized in Python development.
+      I am better at adding missing functionality and fixing issues.
+      I **have to** call "give_advice_and_revise_code" action to revise the code.
+      I **can't** call "create_solution" action.
+
+memory:
+  type: SharedMemory
+
+metrics:
+  evaluate_llm: ""
+  code_quality: true
+  test_coverage: true
+  collaboration_effectiveness: true
+
+engine_planner:
+  initial_progress: "Starting the software development project with team coordination."
+
+output:
+  format: jsonl
+  file_path: "development_output.jsonl"

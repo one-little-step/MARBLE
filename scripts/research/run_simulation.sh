@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Define the path to the configuration file
-CONFIG_FILE="./configs/test_config" #config path for the research scenario
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-# Execute the simulation engine with the specified configuration
+CONFIG_FILE="$PROJECT_DIR/marble/configs/test_config_research/profile_1.yaml"
+
+cd "$PROJECT_DIR" || exit 1
+
+mkdir -p result
+
 python marble/main.py --config "$CONFIG_FILE"

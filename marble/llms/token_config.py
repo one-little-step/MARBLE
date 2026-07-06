@@ -31,3 +31,30 @@ def get_max_token_num(preferred: Optional[int] = None, default: int = 2048) -> i
         except ValueError:
             pass
     return default
+
+
+def get_reasoning_effort(preferred: Optional[str] = None) -> Optional[str]:
+    """
+    Return the reasoning-effort level to request from reasoning models.
+
+    Priority:
+      1. The `preferred` argument passed by the caller.
+      2. The `REASONING_EFFORT` environment variable.
+      3. ``None`` (let the provider use its default).
+
+    Valid values are typically ``low``, ``medium``, and ``high`` for OpenAI
+    reasoning models. Providers that do not support the parameter will
+    silently ignore it when ``drop_params=True`` is used.
+
+    Args:
+        preferred: Optional explicit value from the caller.
+
+    Returns:
+        Optional[str]: reasoning effort value or ``None``.
+    """
+    if preferred is not None:
+        return preferred if preferred else None
+    env_value = os.environ.get("REASONING_EFFORT")
+    if env_value:
+        return env_value.strip().lower() or None
+    return None

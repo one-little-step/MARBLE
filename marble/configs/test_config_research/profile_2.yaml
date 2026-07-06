@@ -125,7 +125,7 @@ environment:
   max_iterations: 3
   name: Research Collaboration Environment
   type: Research
-llm: gpt-3.5-turbo
+llm: ""
 memory:
   type: SharedMemory
 metrics:

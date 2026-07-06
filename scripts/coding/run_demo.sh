@@ -1,3 +1,8 @@
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+cd "$PROJECT_DIR" || exit 1
+
 WORKSPACE_DIR="marble/workspace"
 UPDATE_SCRIPT="scripts/coding/utils/update_coding_config.py"
 RUN_DEMO_SCRIPT="marble/run_demo.sh"
@@ -7,11 +12,12 @@ safe_model_name=$(echo ${model_name} | tr '/' '_')
 LOG_DIR="marble/logs/${safe_model_name}"
 
 mkdir -p ${LOG_DIR}
+mkdir -p result
 
 for id in {1..100}; do
     echo "Processing task with ID=$id..."
     rm -rf ${WORKSPACE_DIR}/*
-    python ${UPDATE_SCRIPT} --id ${id}
+    python ${UPDATE_SCRIPT} ${id}
     echo "Running the demo script..."
     bash ${RUN_DEMO_SCRIPT}
     echo "Saving solution file..."

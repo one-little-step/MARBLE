@@ -1,4 +1,5 @@
 coordinate_mode: chain
+llm: ""
 relationships:
   - [agent1, agent2, "reports_to"]
   - [agent1, agent3, "manages"]

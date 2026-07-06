@@ -1,7 +1,13 @@
 #!/bin/bash
 
 # Define the directory containing the YAML configuration files
-CONFIG_DIR="/Users/guoshuyi/Desktop/marble2/MARBLE/data/bargaining-data/yaml-seller-Llama-3.1-70B-Instruct-Turbo"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CONFIG_DIR="$PROJECT_DIR/data/bargaining-data/yaml-seller-Llama-3.1-70B-Instruct-Turbo"
+
+cd "$PROJECT_DIR" || exit 1
+
+mkdir -p result
 
 # Check if the directory exists
 if [ ! -d "$CONFIG_DIR" ]; then

@@ -12,7 +12,7 @@ relationships:
   - [agent3, agent2, "collaborates with"]
   # - [agent3, agent4, "collaborates with"]
 
-llm: "gpt-4o-mini"
+llm: ""
 
 environment:
   type: Coding

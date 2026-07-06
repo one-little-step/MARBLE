@@ -70,6 +70,7 @@ def create_solution_handler(
             "Include explanations of the code and its functionality as inline comments within the code.\n"
             "Your final output must be enclosed in a markdown code block with the language specified as python.\n"
             "Ensure that nothing besides the code is inside the markdown code block.\n"
+            "Do not include lengthy reasoning or explanations outside the code block; output the code directly.\n"
             f"Task Description:\n{full_task_description}\n\n"
             f"Implementation Requirements:\n{requirements}\n"
         )
@@ -83,8 +84,9 @@ def create_solution_handler(
                 {"role": "user", "content": user_prompt},
             ],
             return_num=1,
-            max_token_num=get_max_token_num(default=4096),
+            max_token_num=get_max_token_num(default=8192),
             temperature=0.0,
+            reasoning_effort="low",
         )[0]
 
         code_content = response.content

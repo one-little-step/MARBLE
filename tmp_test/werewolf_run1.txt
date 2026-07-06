@@ -1,0 +1,737 @@
+(venv) saptarshi@dhcp-9-127-39-241 MARBLE % source venv/bin/activate && python marble/environments/werewolf_env.py \
+  --config_path marble/configs/test_config/werewolf_config/werewolf_config.yaml \
+  --rounds 4
+/Users/saptarshi/workfiles/MARBLE/MARBLE/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Simulating game round 1...
+2026-07-03 09:10:27,278 - Lisa - INFO - guard agent 'Lisa' initialized with role 'guard', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,282 - Ruby - INFO - seer agent 'Ruby' initialized with role 'seer', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,287 - James - INFO - wolf agent 'James' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,292 - William - INFO - wolf agent 'William' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,298 - Melanie - INFO - wolf agent 'Melanie' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,306 - David - INFO - villager agent 'David' initialized with role 'villager', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,321 - Rachel - INFO - witch agent 'Rachel' initialized with role 'witch', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,330 - Mary - INFO - villager agent 'Mary' initialized with role 'villager', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 09:10:27,344 - John - INFO - villager agent 'John' initialized with role 'villager', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+System: Werewolf environment 'werewolf_engine_demo' initialized with 9 agents and shared memory.
+System: Game data stored in: werewolf_log/game_20260703_091027
+Starting game: werewolf_engine_demo
+System: Werewolf game starting. Initializing day-night cycle.
+Event: SYSTEM: Werewolf game starting. Initializing day-night cycle.
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Rachel', 'Mary', 'John']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 6
+Event: SYSTEM: SYSTEM: Starting day-night cycle for Day 1
+Event: SYSTEM: SYSTEM: Night 1 begins. Werewolves and special roles take actions.
+System: Guard protection reset for all players.
+Event: Guard action starts.
+Event: Guard action event published.
+[Lisa (guard)]: Received action event of type 'reply_guard_action'. Event content: {'protect_target': 'Lisa'}
+System: Processing reply_guard_action.
+[Lisa (guard)]: Lisa: Guard action processed. Lisa is protected this night.
+Event: SYSTEM: Guard has chosen to protect a player.
+Event: Werewolves are selecting a target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Ruby'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Rachel'}
+System: Processing reply_werewolf_action.
+Event: Werewolf attack failed due to lack of a clear majority target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {"attack": true, "target": "Rachel"}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'William'}
+System: Processing reply_werewolf_action.
+Event: Werewolf attack failed due to lack of a clear majority target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'John'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'James'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: Werewolf attack failed due to lack of a clear majority target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': False, 'target': None}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'James'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': False, 'target': None}
+System: Processing reply_werewolf_action.
+Event: Werewolf attack failed due to lack of a clear majority target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'John'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'James'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: Werewolf attack failed due to lack of a clear majority target.
+Event: SYSTEM: Round Details:
+ - Round Targets: {'James': 'John', 'William': 'James', 'Melanie': 'David'}
+ - Remaining Werewolves: ['James', 'William', 'Melanie']
+ - Discussion Rounds Left: 0
+ - Final Target: None
+ - Attack Successful: False
+Result: Attack failed due to lack of consensus among werewolves.
+Event: SYSTEM: Werewolves have chosen their target.
+Event: Seer is performing their action.
+Event: Seer action event published.
+[Ruby (seer)]: Received action event of type 'reply_seer_action'. Event content: {'check_target': 'David'}
+System: Processing reply_seer_action.
+[Ruby (seer)]: Ruby: At Night 1, You have checked David, the result is: not a werewolf.
+Event: SYSTEM: System log - Seer action:
+ - Seer ID: Ruby
+ - Night 1: Checked David - Result: not a werewolf
+Event: SYSTEM: Seer has checked a player's identity.
+Event: Witch is deciding on antidote and poison usage.
+[Rachel (witch)]: Received action event of type 'reply_witch_action'. Event content: {'use_antidote': False, 'use_poison': False, 'poison_target': None}
+System: Processing reply_witch_action.
+[Rachel (witch)]: Rachel: Witch chose not to use antidote or poison tonight.
+Event: SYSTEM: Witch chose not to use antidote or poison tonight.
+Event: Witch action event published.
+Event: SYSTEM: Witch has made her decision on potion use.
+System: Night phase actions are completed.
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Night1.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Rachel', 'Mary', 'John']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 6
+Event: SYSTEM: Day 1 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: SYSTEM: Day 1 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: [generate_daily_tasks] Private tasks: ['protect_seer', 'poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf']
+[generate_daily_tasks] Public tasks: ['poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf', 'protect_seer']
+Event: SYSTEM: [start] Daily tasks for Day 1: private=['protect_seer', 'poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf'], public=['poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf', 'protect_seer']
+System: Day phase begins. Players discuss and vote on potential suspects.
+Event: First day: Sheriff election begins.
+Event: Run for sheriff event published for all living players.
+[Lisa (guard)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': None, 'James': None, 'William': None, 'Melanie': None, 'David': None, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Ruby (seer)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': None, 'William': None, 'Melanie': None, 'David': None, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[James (wolf)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': None, 'Melanie': None, 'David': None, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[William (wolf)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': True, 'Melanie': None, 'David': None, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Melanie (wolf)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': True, 'Melanie': True, 'David': None, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[David (villager)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': True, 'Melanie': True, 'David': True, 'Rachel': None, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Rachel (witch)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': True, 'Melanie': True, 'David': True, 'Rachel': True, 'Mary': None, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Mary (villager)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Lisa': True, 'Ruby': True, 'James': True, 'William': True, 'Melanie': True, 'David': True, 'Rachel': True, 'Mary': True, 'John': None}
+Event: Waiting for all players to decide on running for sheriff.
+[John (villager)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+Event: SYSTEM: Sheriff election candidates: David, James, John, Lisa, Mary, Melanie, Rachel, Ruby, William
+System: Sheriff speech event published for candidate David.
+System: Processing reply_sheriff_speech.
+[David (villager)]: David: David's speech: Hello everyone! I'm David, and I'm running for sheriff. I want to be upfront with all of you: I am an ordinary villager. I have no special powers or secret knowledge. But what I do have is a clear head and a commitment to finding the werewolves among us. As sheriff, my primary focus would be on facilitating fair and productive discussions, making sure everyone has a chance to speak, and helping us reach consensus on who to vote out. I won't make wild claims or pretend to be something I'm not, because trust is the most valuable currency in this game. I believe in evidence-based reasoning, and I will listen carefully to everyone's observations before making decisions. I ask for your trust and your vote. If you elect me sheriff, I promise to serve the villagewith integrity. Thank you.
+System: Sheriff speech event published for candidate James.
+System: Processing reply_sheriff_speech.
+[James (wolf)]: James: James's speech: Hello everyone. I'm James, and I'm running for sheriff. Like David, I want to be honest with you: I am an ordinary villager with no special abilities. I believe that transparency is important in building trust.
+
+I appreciate David's speech and his commitment to evidence-based reasoning. That's exactly the kind of approach we need. As sheriff, Iwould make sure every voice is heard and that we base our decisions on logic, not emotion.
+
+I noticed that no one died last night. This is worth thinking about - perhaps the Guard made a wise protection, the Witch used their antidote, or the werewolves chose not to attack for their own reasons. Either way, we should keep this in mind as we move forward.
+
+If elected sheriff, my plan is simple: I will carefully listen to everyone's statements, ask thoughtful questions, and help us identify inconsistencies in people's stories. The werewolves will eventually slip up if we pay close attention. I won't make rash accusations or grand claims - just steady, fair leadership.
+
+I ask for your vote and your trust. Together, we can find the werewolves and protect our village. Thank you.
+System: Sheriff speech event published for candidate John.
+2026-07-03 09:21:35,701 - John - ERROR - Error during sheriff_speech's tool call: Invalid control character at: line 1 column 2295 (char 2294)
+System: Processing reply_sheriff_speech.
+[John (villager)]: John: John's speech: Error during generation for player John.
+Event: SYSTEM: John has withdrawn from the sheriff election.
+System: Sheriff speech event published for candidate Lisa.
+2026-07-03 09:21:58,619 - Lisa - ERROR - Error during sheriff_speech's tool call: Expecting ',' delimiter: line 1 column 3820 (char 3819)
+System: Processing reply_sheriff_speech.
+[Lisa (guard)]: Lisa: Lisa's speech: Error during generation for player Lisa.
+Event: SYSTEM: Lisa has withdrawn from the sheriff election.
+System: Sheriff speech event published for candidate Mary.
+System: Processing reply_sheriff_speech.
+[Mary (villager)]: Mary: Mary's speech: Hello everyone, I'm Mary, and I'm running for sheriff. First, I want to thank David and James for their honest and transparent speeches. It's refreshing to see candidates who value evidence and fairness over wild claims.
+
+I noticed something interesting: no one died last night. This could mean the Guard made a wise protection, or the Witch used their antidote to save someone. Either way, this shows that our special roles are active and working to protect us. We should keep this in mind as we move forward.
+
+As your sheriff, I promise to be a fair and attentive leader. My approach will be simple: I'll listen carefully to everyone's statements, ask thoughtful questions to uncover inconsistencies, and help us reach consensus on who to vote out. I won't make hasty accusationsor pretend to have information I don't have. I believe the werewolves will reveal themselves through contradictions and suspicious behavior if we pay close enough attention.
+
+I'm asking for your trust and your vote. Together, we can identify the threats among us and protect our village. Thank you.
+System: Sheriff speech event published for candidate Melanie.
+System: Processing reply_sheriff_speech.
+[Melanie (wolf)]: Melanie: Melanie's speech: Hello everyone, I'm Melanie, and I'm running for sheriff. I want to start by thanking David, James, and Mary for their thoughtful speeches - it's good to see candidates committed to fairness and evidence-based discussion.
+
+I've been thinking about the fact that no one died last night. Of course, it could be that the Guard made a wise choice or the Witch used their antidote. But there's another possibility worth considering: perhaps the werewolves couldn't agree on a target. That kind of discord among them would be a good sign for us - it means they might be struggling to coordinate. Either way, it's a detail worth watching as the game goes on.
+
+As for my qualifications, I consider myself a careful observer. I don't rush to conclusions, and I believe that the truth comes out when we pay attention to inconsistencies and contradictions over time. If elected sheriff, my focus would be on facilitating productive discussion, making sure everyone has a chance to share their perspective, and helping us reach a consensus based on logic rather than emotion.
+
+I'm not here to make wild claims or pretend to have secret information. I'm simply a villager who wants to work together with all of you to identify and eliminate the werewolves. I ask for your trust and your vote. Thank you.
+System: Sheriff speech event published for candidate Rachel.
+System: Processing reply_sheriff_speech.
+[Rachel (witch)]: Rachel: Rachel's speech: Hello everyone, I'm Rachel, and I'm running for sheriff. First, I want to thank David, James, Mary, and Melanie for their thoughtful speeches - it's clear that we have several committed candidates who genuinely want to help the village.
+
+I'd like to share an observation. All four previous candidates claimed to be ordinary villagers with no special abilities. Now, I'm not saying this is suspicious - honesty is the foundation of trust in this game. But statistically, having four candidates all claim the exact same role is worth noting as we move forward. It might mean nothing, or it could be a pattern we need to watch. I'll keep an openmind.
+
+Regarding last night - nobody died. This is good news, and it tells us that our special roles are working. Whether the Guard made a wise protection or the Witch chose carefully, we have reason to be optimistic. But we shouldn't let our guard down.
+
+As for my qualifications, I believe in active, engaged leadership. I won't pretend to have secret information or make extravagant claims. What I offer is a sharp eye for inconsistencies, patience in listening to all perspectives, and a commitment to making decisions based on logic rather than emotion. If elected, I will facilitate thorough discussion, ask pointed questions when something seems off, and work with all of you to reach the best possible consensus.
+
+Some of you might wonder why you should vote for me when there are other capable candidates. I'll tell you: because I bring a different perspective. I'm not here to simply echo what others have said. I'm here to think critically, challenge assumptions when needed, and help this village root out the werewolves.
+
+I ask for your vote and your trust. Together, we can protect this village and identify the threats among us. Thank you.
+System: Sheriff speech event published for candidate Ruby.
+2026-07-03 09:23:56,780 - Ruby - ERROR - Error during sheriff_speech's tool call: Invalid control character at: line 1 column 2567 (char 2566)
+System: Processing reply_sheriff_speech.
+[Ruby (seer)]: Ruby: Ruby's speech: Error during generation for player Ruby.
+Event: SYSTEM: Ruby has withdrawn from the sheriff election.
+System: Sheriff speech event published for candidate William.
+2026-07-03 09:24:28,223 - William - ERROR - Error during sheriff_speech's tool call: Invalid control character at: line 1 column 2461 (char 2460)
+System: Processing reply_sheriff_speech.
+[William (wolf)]: William: William's speech: Error during generation for player William.
+Event: SYSTEM: William has withdrawn from the sheriff election.
+Event: All candidates finish their speech. Now, remaining players will vote for sheriff.
+Event: All players have run for sheriff (or none are eligible to vote). Skipping sheriff vote.
+Event: Attempted to mark event 'run_for_sheriff' as complete, but current event is 'None'. No action taken.
+Event: SYSTEM: No players deceased during the night.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Rachel', 'Mary', 'John']
+System: Speech sequence: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+Event: Players begin speeches.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[David (villager)]: David: David's speech: Error during generation for player David.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[James (wolf)]: James: James's speech: Error during generation for player James.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[John (villager)]: John: John's speech: Error during generation for player John.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Lisa (guard)]: Lisa: Lisa's speech: Error during generation for player Lisa.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Mary (villager)]: Mary: Mary's speech: Error during generation for player Mary.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Melanie (wolf)]: Melanie: Melanie's speech: Error during generation for player Melanie.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Rachel (witch)]: Rachel: Rachel's speech: Error during generation for player Rachel.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Ruby (seer)]: Ruby: Ruby's speech: Error during generation for player Ruby.
+System: Current speech order: ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[William (wolf)]: William: William's speech: Error during generation for player William.
+Event: SYSTEM: All players have completed their speeches for today.
+Event: Players are voting to exile a suspect.
+[Lisa (guard)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Ruby (seer)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[James (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'John'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[William (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Melanie (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[David (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Rachel (witch)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'James'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Mary (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[John (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Rachel'}
+System: Processing reply_vote_action.
+Event: SYSTEM: Rachel has been banished from the game.
+Event: SYSTEM: Banishment votes:
+Lisa voted for Rachel
+Ruby voted for Rachel
+James voted for John
+William voted for Rachel
+Melanie voted for Rachel
+David voted for Rachel
+Rachel voted for James
+Mary voted for Rachel
+John voted for Rachel
+(Note: The voting order reflects only the system's query sequence and does not imply any strategic alignment or motive.)
+Event: Vote to exile event published to all alive players.
+System: Day 1 cache updated: {'sheriff_candidates': ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William'], 'sheriff_speech': {'David': "Hello everyone! I'm David, and I'm running for sheriff. I want to be upfront with all of you: I am an ordinary villager. I have no special powers or secret knowledge. But what I do have is a clear head and a commitment to finding the werewolves among us. As sheriff, my primary focus would be on facilitating fair and productive discussions, making sure everyone has a chance to speak, and helping us reach consensus on who to vote out. I won't make wild claims or pretend to be something I'm not, because trust is the most valuable currency in this game. I believe in evidence-based reasoning, and I will listen carefully to everyone's observations before making decisions. I ask for your trust and your vote. If you elect me sheriff, I promise to serve the village with integrity. Thank you.", 'James': "Hello everyone. I'm James, and I'm running for sheriff. Like David, I want to be honest with you: I am an ordinary villager with no special abilities. I believe that transparency is important in building trust.\n\nI appreciate David's speech and his commitment to evidence-based reasoning. That's exactly the kind of approach we need. As sheriff, I would make sure every voice is heard and that we base our decisions on logic, not emotion.\n\nI noticed that no one died last night. This is worth thinking about - perhaps the Guard made a wise protection, the Witch used their antidote, or the werewolves chose not to attack for their own reasons. Either way, we should keep this in mind as we move forward.\n\nIf elected sheriff, my plan is simple: I will carefully listen to everyone's statements, ask thoughtful questions, and help us identify inconsistencies in people's stories. The werewolves will eventually slipup if we pay close attention. I won't make rash accusations or grand claims - just steady, fair leadership.\n\nI ask for your vote andyour trust. Together, we can find the werewolves and protect our village. Thank you.", 'John': 'Error during generation for player John.', 'Lisa': 'Error during generation for player Lisa.', 'Mary': "Hello everyone, I'm Mary, and I'm running for sheriff. First, I want to thank David and James for their honest and transparent speeches. It's refreshing to see candidates who value evidence and fairness over wild claims.\n\nI noticed something interesting: no one died last night. This could mean the Guard made a wise protection, or the Witch used their antidote to save someone. Either way, this shows that our special roles are active and working to protect us. We shouldkeep this in mind as we move forward.\n\nAs your sheriff, I promise to be a fair and attentive leader. My approach will be simple: I'll listen carefully to everyone's statements, ask thoughtful questions to uncover inconsistencies, and help us reach consensus on who tovote out. I won't make hasty accusations or pretend to have information I don't have. I believe the werewolves will reveal themselves through contradictions and suspicious behavior if we pay close enough attention.\n\nI'm asking for your trust and your vote. Together, we can identify the threats among us and protect our village. Thank you.", 'Melanie': "Hello everyone, I'm Melanie, and I'm running forsheriff. I want to start by thanking David, James, and Mary for their thoughtful speeches - it's good to see candidates committed to fairness and evidence-based discussion.\n\nI've been thinking about the fact that no one died last night. Of course, it could be that the Guard made a wise choice or the Witch used their antidote. But there's another possibility worth considering: perhaps the werewolves couldn't agree on a target. That kind of discord among them would be a good sign for us - it means they might be struggling to coordinate. Either way, it's a detail worth watching as the game goes on.\n\nAs for my qualifications, I consider myself a careful observer. I don't rush to conclusions, and I believe that the truth comes out when we pay attention to inconsistencies and contradictions over time. If elected sheriff, my focus would be on facilitating productive discussion, making sure everyone has a chance to share their perspective, and helping us reach a consensus based on logic rather than emotion.\n\nI'm not here to make wild claims or pretend to have secret information. I'm simply a villager who wants to work together with all of you to identify and eliminate the werewolves. I ask for your trust and your vote. Thank you.", 'Rachel': "Hello everyone, I'm Rachel, and I'm running for sheriff. First, I want to thank David, James, Mary, and Melanie for their thoughtful speeches - it's clear that we have several committed candidates who genuinely want to helpthe village.\n\nI'd like to share an observation. All four previous candidates claimed to be ordinary villagers with no special abilities. Now, I'm not saying this is suspicious - honesty is the foundation of trust in this game. But statistically, having four candidates all claim the exact same role is worth noting as we move forward. It might mean nothing, or it could be a pattern we need to watch. I'll keep an open mind.\n\nRegarding last night - nobody died. This is good news, and it tells us that our special roles are working. Whether the Guard made a wise protection or the Witch chose carefully, we have reason to be optimistic. But we shouldn't let our guard down.\n\nAs for my qualifications, I believe in active, engaged leadership. I won't pretend to have secret information or make extravagant claims. What I offer is a sharp eye for inconsistencies, patience in listening to all perspectives, and a commitment to making decisions based on logic rather than emotion. If elected, I will facilitate thorough discussion, ask pointed questions when something seems off, and work with all of you to reach the best possible consensus.\n\nSome of you might wonder why you should vote for me when there are other capable candidates. I'll tell you: because I bring a different perspective. I'm not here to simply echo what others have said. I'm here to think critically, challenge assumptions when needed, and help this village root out the werewolves.\n\nI ask for your vote and your trust. Together, we can protect this village and identify the threats among us. Thank you.", 'Ruby': 'Error during generation for player Ruby.', 'William': 'Error during generation for player William.'}, 'final_candidate': ['David', 'James', 'Mary', 'Melanie', 'Rachel'], 'speech_order_decision': ['David', 'James', 'John', 'Lisa', 'Mary', 'Melanie', 'Rachel', 'Ruby', 'William'], 'speech_log': {'David': 'Error during generation for player David.', 'James': 'Error during generation for player James.', 'John': 'Error during generation for player John.', 'Lisa': 'Error during generation for player Lisa.', 'Mary': 'Error during generation for player Mary.', 'Melanie': 'Error during generation for player Melanie.', 'Rachel': 'Error during generation for player Rachel.', 'Ruby': 'Error during generation for player Ruby.', 'William': 'Error during generation for player William.'}, 'banishment_votes': {'Lisa': 'Rachel', 'Ruby': 'Rachel', 'James': 'John', 'William': 'Rachel', 'Melanie': 'Rachel', 'David': 'Rachel', 'Rachel': 'James', 'Mary': 'Rachel', 'John': 'Rachel'}, 'banishment_result': 'Rachel', 'vote_summary': 'Lisa voted for Rachel\nRuby voted for Rachel\nJames voted for John\nWilliam voted for Rachel\nMelanie voted for Rachel\nDavid voted for Rachel\nRachel voted for James\nMary voted for Rachel\nJohn voted for Rachel'}
+Event: SYSTEM: Player Rachel has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Mary', 'John']
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Day1.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Mary', 'John']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 5
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Mary', 'John']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 5
+Event: SYSTEM: SYSTEM: Starting day-night cycle for Day 2
+Event: SYSTEM: SYSTEM: Night 2 begins. Werewolves and special roles take actions.
+System: Guard protection reset for all players.
+Event: Guard action starts.
+Event: Guard action event published.
+[Lisa (guard)]: Received action event of type 'reply_guard_action'. Event content: {'protect_target': 'James'}
+System: Processing reply_guard_action.
+[Lisa (guard)]: Lisa: Guard action processed. James is protected this night.
+Event: SYSTEM: Guard has chosen to protect a player.
+Event: Werewolves are selecting a target.
+[James (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Ruby'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'David'}
+System: Processing reply_werewolf_action.
+Event: SYSTEM: Round Details:
+ - Round Targets: {'James': 'Ruby', 'William': 'David', 'Melanie': 'David'}
+ - Remaining Werewolves: ['James', 'William', 'Melanie']
+ - Discussion Rounds Left: 0
+ - Final Target: David
+ - Attack Successful: True
+Result: Target David attacked by werewolves and health reduced.
+Event: SYSTEM: Werewolves have chosen their target.
+Event: Seer is performing their action.
+Event: Seer action event published.
+[Ruby (seer)]: Received action event of type 'reply_seer_action'. Event content: {'check_target': 'James'}
+System: Processing reply_seer_action.
+[Ruby (seer)]: Ruby: At Night 2, You have checked James, the result is: werewolf.
+Event: SYSTEM: System log - Seer action:
+ - Seer ID: Ruby
+ - Night 2: Checked James - Result: werewolf
+Event: SYSTEM: Seer has checked a player's identity.
+Event: Witch is deciding on antidote and poison usage.
+Event: SYSTEM: No witch player found. Skip guard action.
+Event: Witch action event published.
+Event: SYSTEM: Witch has made her decision on potion use.
+System: Night phase actions are completed.
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Night2.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'David', 'Mary', 'John']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 5
+Event: SYSTEM: Day 2 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: SYSTEM: Day 2 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: [generate_daily_tasks] Private tasks: ['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf']
+[generate_daily_tasks] Public tasks: ['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+Event: SYSTEM: [start] Daily tasks for Day 2: private=['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf'], public=['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+System: Day phase begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: Players deceased during the night: David
+Event: Announcing deceased from the night. No last words will be given.
+Event: SYSTEM: Player David has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'James', 'William', 'Melanie', 'Mary', 'John']
+Event: Players begin speeches.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[James (wolf)]: James: James's speech: Error during generation for player James.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[John (villager)]: John: John's speech: Error during generation for player John.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Lisa (guard)]: Lisa: Lisa's speech: Error during generation for player Lisa.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Mary (villager)]: Mary: Mary's speech: Error during generation for player Mary.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Melanie (wolf)]: Melanie: Melanie's speech: Error during generation for player Melanie.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Ruby (seer)]: Ruby: Ruby's speech: Error during generation for player Ruby.
+System: Current speech order: ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[William (wolf)]: William: William's speech: Error during generation for player William.
+Event: SYSTEM: All players have completed their speeches for today.
+Event: Players are voting to exile a suspect.
+[Lisa (guard)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'James'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Ruby (seer)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'James'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[James (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Ruby'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[William (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'John'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Melanie (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'John'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Mary (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'James'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[John (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'James'}
+System: Processing reply_vote_action.
+Event: SYSTEM: James has been banished from the game.
+Event: SYSTEM: Banishment votes:
+Lisa voted for James
+Ruby voted for James
+James voted for Ruby
+William voted for John
+Melanie voted for John
+Mary voted for James
+John voted for James
+(Note: The voting order reflects only the system's query sequence and does not imply any strategic alignment or motive.)
+Event: Vote to exile event published to all alive players.
+System: Day 2 cache updated: {'speech_order_decision': ['James', 'John', 'Lisa', 'Mary', 'Melanie', 'Ruby', 'William'], 'speech_log': {'James': 'Error during generation for player James.', 'John': 'Error during generation for player John.', 'Lisa': 'Error during generation for player Lisa.', 'Mary': 'Error during generation for player Mary.', 'Melanie': 'Error during generation for player Melanie.', 'Ruby': 'Error during generation for player Ruby.', 'William': 'Error during generation for player William.'}, 'banishment_votes': {'Lisa': 'James', 'Ruby': 'James', 'James': 'Ruby', 'William': 'John', 'Melanie': 'John', 'Mary': 'James', 'John': 'James'}, 'banishment_result': 'James', 'vote_summary': 'Lisa voted for James\nRuby voted for James\nJames voted for Ruby\nWilliam voted for John\nMelanie votedfor John\nMary voted for James\nJohn voted for James'}
+Event: SYSTEM: Player James has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'William', 'Melanie', 'Mary', 'John']
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Day2.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'William', 'Melanie', 'Mary', 'John']
+System: Number of werewolves: 2
+System: Number of non-werewolves: 4
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'William', 'Melanie', 'Mary', 'John']
+System: Number of werewolves: 2
+System: Number of non-werewolves: 4
+Event: SYSTEM: SYSTEM: Starting day-night cycle for Day 3
+Event: SYSTEM: SYSTEM: Night 3 begins. Werewolves and special roles take actions.
+System: Guard protection reset for all players.
+Event: Guard action starts.
+Event: Guard action event published.
+[Lisa (guard)]: Received action event of type 'reply_guard_action'. Event content: {'protect_target': 'Mary'}
+System: Processing reply_guard_action.
+[Lisa (guard)]: Lisa: Guard action processed. Mary is protected this night.
+Event: SYSTEM: Guard has chosen to protect a player.
+Event: Werewolves are selecting a target.
+[William (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'John'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'John'}
+System: Processing reply_werewolf_action.
+Event: SYSTEM: Round Details:
+ - Round Targets: {'William': 'John', 'Melanie': 'John'}
+ - Remaining Werewolves: ['William', 'Melanie']
+ - Discussion Rounds Left: 0
+ - Final Target: John
+ - Attack Successful: True
+Result: Target John attacked by werewolves and health reduced.
+Event: SYSTEM: Werewolves have chosen their target.
+Event: Seer is performing their action.
+Event: Seer action event published.
+[Ruby (seer)]: Received action event of type 'reply_seer_action'. Event content: {'check_target': 'William'}
+System: Processing reply_seer_action.
+[Ruby (seer)]: Ruby: At Night 3, You have checked William, the result is: werewolf.
+Event: SYSTEM: System log - Seer action:
+ - Seer ID: Ruby
+ - Night 3: Checked William - Result: werewolf
+Event: SYSTEM: Seer has checked a player's identity.
+Event: Witch is deciding on antidote and poison usage.
+Event: SYSTEM: No witch player found. Skip guard action.
+Event: Witch action event published.
+Event: SYSTEM: Witch has made her decision on potion use.
+System: Night phase actions are completed.
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Night3.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'William', 'Melanie', 'Mary', 'John']
+System: Number of werewolves: 2
+System: Number of non-werewolves: 4
+Event: SYSTEM: Day 3 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: SYSTEM: Day 3 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: [generate_daily_tasks] Private tasks: ['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf']
+[generate_daily_tasks] Public tasks: ['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+Event: SYSTEM: [start] Daily tasks for Day 3: private=['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf'], public=['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+System: Day phase begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: Players deceased during the night: John
+Event: Announcing deceased from the night. No last words will be given.
+Event: SYSTEM: Player John has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'William', 'Melanie', 'Mary']
+Event: Players begin speeches.
+System: Current speech order: ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Lisa (guard)]: Lisa: Lisa's speech: Error during generation for player Lisa.
+System: Current speech order: ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Mary (villager)]: Mary: Mary's speech: Error during generation for player Mary.
+System: Current speech order: ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Melanie (wolf)]: Melanie: Melanie's speech: Error during generation for player Melanie.
+System: Current speech order: ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[Ruby (seer)]: Ruby: Ruby's speech: Error during generation for player Ruby.
+System: Current speech order: ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William']
+System: Processing reply_player_speech.
+[William (wolf)]: William: William's speech: Error during generation for player William.
+Event: SYSTEM: All players have completed their speeches for today.
+Event: Players are voting to exile a suspect.
+[Lisa (guard)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'William'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Ruby (seer)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'William'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[William (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Ruby'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Melanie (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Mary'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Mary (villager)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'William'}
+System: Processing reply_vote_action.
+Event: SYSTEM: William has been banished from the game.
+Event: SYSTEM: Banishment votes:
+Lisa voted for William
+Ruby voted for William
+William voted for Ruby
+Melanie voted for Mary
+Mary voted for William
+(Note: The voting order reflects only the system's query sequence and does not imply any strategic alignment or motive.)
+Event: Vote to exile event published to all alive players.
+System: Day 3 cache updated: {'speech_order_decision': ['Lisa', 'Mary', 'Melanie', 'Ruby', 'William'], 'speech_log': {'Lisa': 'Error during generation for player Lisa.', 'Mary': 'Error during generation for player Mary.', 'Melanie': 'Error during generation for player Melanie.', 'Ruby': 'Error during generation for player Ruby.', 'William': 'Error during generation for player William.'}, 'banishment_votes': {'Lisa': 'William', 'Ruby': 'William', 'William': 'Ruby', 'Melanie': 'Mary', 'Mary': 'William'}, 'banishment_result': 'William','vote_summary': 'Lisa voted for William\nRuby voted for William\nWilliam voted for Ruby\nMelanie voted for Mary\nMary voted for William'}
+Event: SYSTEM: Player William has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'Melanie', 'Mary']
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Day3.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'Melanie', 'Mary']
+System: Number of werewolves: 1
+System: Number of non-werewolves: 3
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'Melanie', 'Mary']
+System: Number of werewolves: 1
+System: Number of non-werewolves: 3
+Event: SYSTEM: SYSTEM: Starting day-night cycle for Day 4
+Event: SYSTEM: SYSTEM: Night 4 begins. Werewolves and special roles take actions.
+System: Guard protection reset for all players.
+Event: Guard action starts.
+Event: Guard action event published.
+[Lisa (guard)]: Received action event of type 'reply_guard_action'. Event content: {'protect_target': 'Melanie'}
+System: Processing reply_guard_action.
+[Lisa (guard)]: Lisa: Guard action processed. Melanie is protected this night.
+Event: SYSTEM: Guard has chosen to protect a player.
+Event: Werewolves are selecting a target.
+[Melanie (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Mary'}
+System: Processing reply_werewolf_action.
+Event: SYSTEM: Round Details:
+ - Round Targets: {'Melanie': 'Mary'}
+ - Remaining Werewolves: ['Melanie']
+ - Discussion Rounds Left: 0
+ - Final Target: Mary
+ - Attack Successful: True
+Result: Target Mary attacked by werewolves and health reduced.
+Event: SYSTEM: Werewolves have chosen their target.
+Event: Seer is performing their action.
+Event: Seer action event published.
+[Ruby (seer)]: Received action event of type 'reply_seer_action'. Event content: {'check_target': 'Melanie'}
+System: Processing reply_seer_action.
+[Ruby (seer)]: Ruby: At Night 4, You have checked Melanie, the result is: werewolf.
+Event: SYSTEM: System log - Seer action:
+ - Seer ID: Ruby
+ - Night 4: Checked Melanie - Result: werewolf
+Event: SYSTEM: Seer has checked a player's identity.
+Event: Witch is deciding on antidote and poison usage.
+Event: SYSTEM: No witch player found. Skip guard action.
+Event: Witch action event published.
+Event: SYSTEM: Witch has made her decision on potion use.
+System: Night phase actions are completed.
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Night4.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby', 'Melanie', 'Mary']
+System: Number of werewolves: 1
+System: Number of non-werewolves: 3
+Event: SYSTEM: Day 4 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: SYSTEM: Day 4 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: [generate_daily_tasks] Private tasks: ['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf']
+[generate_daily_tasks] Public tasks: ['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+Event: SYSTEM: [start] Daily tasks for Day 4: private=['protect_seer', 'poison_werewolf', 'rescue_villager', 'exile_werewolf'], public=['poison_werewolf', 'rescue_villager', 'exile_werewolf', 'protect_seer']
+System: Day phase begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: Players deceased during the night: Mary
+Event: Announcing deceased from the night. No last words will be given.
+Event: SYSTEM: Player Mary has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby', 'Melanie']
+Event: Players begin speeches.
+System: Current speech order: ['Lisa', 'Melanie', 'Ruby']
+System: Processing reply_player_speech.
+[Lisa (guard)]: Lisa: Lisa's speech: Error during generation for player Lisa.
+System: Current speech order: ['Lisa', 'Melanie', 'Ruby']
+System: Processing reply_player_speech.
+[Melanie (wolf)]: Melanie: Melanie's speech: Error during generation for player Melanie.
+System: Current speech order: ['Lisa', 'Melanie', 'Ruby']
+System: Processing reply_player_speech.
+[Ruby (seer)]: Ruby: Ruby's speech: Error during generation for player Ruby.
+Event: SYSTEM: All players have completed their speeches for today.
+Event: Players are voting to exile a suspect.
+[Lisa (guard)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Melanie'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Ruby (seer)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Melanie'}
+System: Processing reply_vote_action.
+Event: Waiting for remaining players to cast their votes.
+[Melanie (wolf)]: Received action event of type 'reply_vote_action'. Event content: {'action_vote': 'Ruby'}
+System: Processing reply_vote_action.
+Event: SYSTEM: Melanie has been banished from the game.
+Event: SYSTEM: Banishment votes:
+Lisa voted for Melanie
+Ruby voted for Melanie
+Melanie voted for Ruby
+(Note: The voting order reflects only the system's query sequence and does not imply any strategic alignment or motive.)
+Event: Vote to exile event published to all alive players.
+System: Day 4 cache updated: {'speech_order_decision': ['Lisa', 'Melanie', 'Ruby'], 'speech_log': {'Lisa': 'Error during generation for player Lisa.', 'Melanie': 'Error during generation for player Melanie.', 'Ruby': 'Error during generation for player Ruby.'}, 'banishment_votes': {'Lisa': 'Melanie', 'Ruby': 'Melanie', 'Melanie': 'Ruby'}, 'banishment_result': 'Melanie', 'vote_summary': 'Lisa voted forMelanie\nRuby voted for Melanie\nMelanie voted for Ruby'}
+Event: SYSTEM: Player Melanie has been eliminated from the game.
+System: Updated alive_players list: ['Lisa', 'Ruby']
+System: Shared memory successfully written to werewolf_log/game_20260703_091027/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_091027/checkpoint_Day4.json
+System: Checking if the game should terminate.
+System: Alive players: ['Lisa', 'Ruby']
+System: Number of werewolves: 0
+System: Number of non-werewolves: 2
+System: Final result saved to werewolf_log/game_20260703_091027/result.json
+
+======================================================
+GAME END! Villagers win
+
+Remaining players:
+Lisa (guard)
+Ruby (seer)
+
+Scores:
+Villagers: 10.5
+Werewolves: 4
+Result Score: 2
+======================================================
+
+System: Log folder renamed to 'werewolf_log/game_20260703_091027_Villagers_win'.
+System: SYSTEM: Game termination condition met after day phase.
+System: Failed to write shared memory to werewolf_log/game_20260703_091027/shared_memory.json: [Errno 2] No such file or directory: 'werewolf_log/game_20260703_091027/shared_memory.json'
+Simulating game round 2...
+2026-07-03 10:17:52,216 - Cheryl - INFO - wolf agent 'Cheryl' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,221 - Maria - INFO - guard agent 'Maria' initialized with role 'guard', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,225 - Thomas - INFO - wolf agent 'Thomas' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,229 - Susan - INFO - seer agent 'Susan' initialized with role 'seer', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,233 - Barbara - INFO - villager agent 'Barbara' initialized with role 'villager', using model 'deepseek-v4-flash',base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,236 - Edward - INFO - wolf agent 'Edward' initialized with role 'wolf', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,240 - Denis - INFO - witch agent 'Denis' initialized with role 'witch', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,244 - Gay - INFO - villager agent 'Gay' initialized with role 'villager', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+2026-07-03 10:17:52,248 - Chris - INFO - villager agent 'Chris' initialized with role 'villager', using model 'deepseek-v4-flash', base URL 'https://opencode.ai/zen/go/v1'
+System: Werewolf environment 'werewolf_engine_demo' initialized with 9 agents and shared memory.
+System: Game data stored in: werewolf_log/game_20260703_101752
+Starting game: werewolf_engine_demo
+System: Werewolf game starting. Initializing day-night cycle.
+Event: SYSTEM: Werewolf game starting. Initializing day-night cycle.
+System: Checking if the game should terminate.
+System: Alive players: ['Cheryl', 'Maria', 'Thomas', 'Susan', 'Barbara', 'Edward', 'Denis', 'Gay', 'Chris']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 6
+Event: SYSTEM: SYSTEM: Starting day-night cycle for Day 1
+Event: SYSTEM: SYSTEM: Night 1 begins. Werewolves and special roles take actions.
+System: Guard protection reset for all players.
+Event: Guard action starts.
+Event: Guard action event published.
+[Maria (guard)]: Received action event of type 'reply_guard_action'. Event content: {'protect_target': 'Maria'}
+System: Processing reply_guard_action.
+[Maria (guard)]: Maria: Guard action processed. Maria is protected this night.
+Event: SYSTEM: Guard has chosen to protect a player.
+Event: Werewolves are selecting a target.
+[Cheryl (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Maria'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Thomas (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Maria'}
+System: Processing reply_werewolf_action.
+Event: Waiting for all werewolves to respond.
+[Edward (wolf)]: Received action event of type 'reply_werewolf_action'. Event content: {'attack': True, 'target': 'Susan'}
+System: Processing reply_werewolf_action.
+Event: SYSTEM: Round Details:
+ - Round Targets: {'Cheryl': 'Maria', 'Thomas': 'Maria', 'Edward': 'Susan'}
+ - Remaining Werewolves: ['Cheryl', 'Thomas', 'Edward']
+ - Discussion Rounds Left: 5
+ - Final Target: Maria
+ - Attack Successful: False
+Result: Target Maria protected, no health reduction.
+Event: SYSTEM: Werewolves have chosen their target.
+Event: Seer is performing their action.
+Event: Seer action event published.
+[Susan (seer)]: Received action event of type 'reply_seer_action'. Event content: {'check_target': 'Cheryl'}
+System: Processing reply_seer_action.
+[Susan (seer)]: Susan: At Night 1, You have checked Cheryl, the result is: werewolf.
+Event: SYSTEM: System log - Seer action:
+ - Seer ID: Susan
+ - Night 1: Checked Cheryl - Result: werewolf
+Event: SYSTEM: Seer has checked a player's identity.
+Event: Witch is deciding on antidote and poison usage.
+[Denis (witch)]: Received action event of type 'reply_witch_action'. Event content: {'use_antidote': False, 'use_poison': False, 'poison_target': None}
+System: Processing reply_witch_action.
+[Denis (witch)]: Denis: Witch chose not to use antidote or poison tonight.
+Event: SYSTEM: Witch chose not to use antidote or poison tonight.
+Event: Witch action event published.
+Event: SYSTEM: Witch has made her decision on potion use.
+System: Night phase actions are completed.
+System: Shared memory successfully written to werewolf_log/game_20260703_101752/shared_memory.json
+System: Checkpoint saved to werewolf_log/game_20260703_101752/checkpoint_Night1.json
+System: Checking if the game should terminate.
+System: Alive players: ['Cheryl', 'Maria', 'Thomas', 'Susan', 'Barbara', 'Edward', 'Denis', 'Gay', 'Chris']
+System: Number of werewolves: 3
+System: Number of non-werewolves: 6
+Event: SYSTEM: Day 1 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: SYSTEM: Day 1 begins. Players discuss and vote on potential suspects.
+Event: SYSTEM: [generate_daily_tasks] Private tasks: ['protect_seer', 'poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf']
+[generate_daily_tasks] Public tasks: ['poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf', 'protect_seer']
+Event: SYSTEM: [start] Daily tasks for Day 1: private=['protect_seer', 'poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf'], public=['poison_werewolf', 'rescue_villager', 'run_for_sheriff', 'exile_werewolf', 'protect_seer']
+System: Day phase begins. Players discuss and vote on potential suspects.
+Event: First day: Sheriff election begins.
+Event: Run for sheriff event published for all living players.
+[Cheryl (wolf)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Cheryl': True, 'Maria': None, 'Thomas': None, 'Susan': None, 'Barbara': None, 'Edward': None, 'Denis': None, 'Gay': None, 'Chris': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Maria (guard)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Cheryl': True, 'Maria': True, 'Thomas': None, 'Susan': None, 'Barbara': None, 'Edward': None, 'Denis': None, 'Gay': None, 'Chris': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Thomas (wolf)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Cheryl': True, 'Maria': True, 'Thomas': True, 'Susan': None, 'Barbara': None, 'Edward': None, 'Denis': None, 'Gay': None, 'Chris': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Susan (seer)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Cheryl': True, 'Maria': True, 'Thomas': True, 'Susan': True, 'Barbara': None, 'Edward': None, 'Denis': None, 'Gay': None, 'Chris': None}
+Event: Waiting for all players to decide on running for sheriff.
+[Barbara (villager)]: Received action event of type 'reply_run_for_sheriff'. Event content: {'run_for_sheriff': True}
+System: Processing reply_run_for_sheriff.
+System: current decision:{'Cheryl': True, 'Maria': True, 'Thomas': True, 'Susan': True, 'Barbara': True, 'Edward': None, 'Denis': None, 'Gay': None, 'Chris': None}
+Event: Waiting for all players to decide on running for sheriff.

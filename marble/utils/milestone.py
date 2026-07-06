@@ -1,15 +1,19 @@
+import os
 import time
 
 import yaml
 
+from marble.llms.client_factory import get_model_name, get_openai_client
 
-def generate_task_milestones(task_description, client):
+
+def generate_task_milestones(task_description, client=None):
     """
-    Generate milestones for a given task by calling the GPT tool.
+    Generate milestones for a given task by calling the LLM.
 
     Args:
         task_description (str): The description of the main task to break down.
-        client: The OpenAI client instance.
+        client: Optional OpenAI client instance. If not provided, one is created
+                from the active ``LLM_SOURCE`` environment configuration.
 
     Returns:
         list or None: Returns a list of milestones if successful, otherwise None.
@@ -37,16 +41,19 @@ def generate_task_milestones(task_description, client):
         {"role": "user", "content": user_prompt},
     ]
 
+    if client is None:
+        client = get_openai_client()
+
     # Define the tool call function with retry mechanism
     rounds = 0
     while rounds < 3:
         rounds += 1
         try:
             response = client.chat.completions.create(
-                model="gpt-4o",
+                model=get_model_name(),
                 messages=messages,
                 tools=[tool],
-                tool_choice="required",
+                tool_choice="auto",
                 temperature=0.0,
                 n=1,
             )

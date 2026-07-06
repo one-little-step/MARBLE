@@ -1,0 +1,18 @@
+system_prompt_path: marble/agent/werewolf_prompts/system_prompt.yaml
+roles:
+  - wolf
+  - villager
+  - seer
+randomize_roles: False
+use_random_names: False
+
+# Model/key/URL are controlled by LLM_SOURCE in the .env file.
+villager_config:
+  model_name: ""
+werewolf_config:
+  model_name: ""
+eval_config:
+  model_name: ""
+
+cooperation_mode: "cooperative"
+use_daily_tasks: False

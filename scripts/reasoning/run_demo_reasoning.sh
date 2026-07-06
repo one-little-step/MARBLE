@@ -1,5 +1,5 @@
 WORKSPACE_DIR="marble/workspace"
-UPDATE_SCRIPT="scripts/coding/utils/update_reasoning_config.py"
+UPDATE_SCRIPT="scripts/reasoning/update_reasoning_config.py"
 RUN_DEMO_SCRIPT="marble/run_demo.sh"
 BASE_CONFIG_DIR="marble/configs"
 
