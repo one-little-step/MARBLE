@@ -5,7 +5,6 @@ The core engine module that coordinates agents within the environment.
 """
 import json
 import pickle
-import shutil
 import traceback
 from datetime import datetime
 from pathlib import Path
@@ -28,11 +27,7 @@ from marble.graph.agent_graph import AgentGraph
 from marble.memory.base_memory import BaseMemory
 from marble.memory.shared_memory import SharedMemory
 from marble.utils.logger import get_logger
-from marble.utils.output_manager import (
-    copy_workspace,
-    create_checkpoint_dir,
-    update_latest_checkpoint_symlink,
-)
+from marble.utils.output_manager import update_latest_checkpoint_symlink
 
 EnvType = Union[
     BaseEnvironment,
