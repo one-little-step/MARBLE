@@ -6,8 +6,10 @@ from litellm.types.utils import Message
 from numpy.typing import NDArray
 from sklearn.metrics.pairwise import cosine_similarity
 
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.text_embedding import text_embedding
+from marble.llms.token_config import get_max_token_num
 from marble.memory.base_memory import BaseMemory
 
 
@@ -109,10 +111,10 @@ class LongTermMemory(BaseMemory):
             prompt += f"{idx}. {str(information)}\n"
 
         summary = model_prompting(
-            llm_model="gpt-3.5-turbo",
+            llm_model=get_model_name(),
             messages=[{"role": "system", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,

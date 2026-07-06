@@ -10,7 +10,9 @@ from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 from litellm.utils import token_counter
 
 from marble.environments import BaseEnvironment, CodingEnvironment, WebEnvironment
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 from marble.memory import BaseMemory, SharedMemory
 from marble.utils.logger import get_logger
 
@@ -37,7 +39,7 @@ class BaseAgent:
         config: Dict[str, Union[Any, Dict[str, Any]]],
         env: EnvType,
         shared_memory: Union[SharedMemory, None] = None,
-        model: str = "gpt-3.5-turbo",
+        model: str = "",
     ):
         """
         Initialize the agent.
@@ -49,9 +51,9 @@ class BaseAgent:
         """
         agent_id = config.get("agent_id")
         if isinstance(model, dict):
-            self.llm = model.get("model", "gpt-3.5-turbo")
+            self.llm = get_model_name(preferred=model.get("model"))
         else:
-            self.llm = model
+            self.llm = get_model_name(preferred=model)
         assert isinstance(agent_id, str), "agent_id must be a string."
         assert env is not None, "agent must has an environment."
         self.env: EnvType = env
@@ -215,7 +217,7 @@ class BaseAgent:
                 llm_model=self.llm,
                 messages=[{"role": "user", "content": act_task}],
                 return_num=1,
-                max_token_num=512,
+                max_token_num=get_max_token_num(default=2048),
                 temperature=0.0,
                 top_p=None,
                 stream=None,
@@ -225,7 +227,7 @@ class BaseAgent:
                 llm_model=self.llm,
                 messages=[{"role": "user", "content": act_task}],
                 return_num=1,
-                max_token_num=512,
+                max_token_num=get_max_token_num(default=2048),
                 temperature=0.0,
                 top_p=None,
                 stream=None,
@@ -466,7 +468,7 @@ class BaseAgent:
                     {"role": "user", "content": communicate_task},
                 ],
                 return_num=1,
-                max_token_num=512,
+                max_token_num=get_max_token_num(default=2048),
                 temperature=0.0,
                 top_p=None,
                 stream=None,
@@ -518,7 +520,7 @@ class BaseAgent:
                 {"role": "user", "content": summary_task},
             ],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -625,7 +627,7 @@ class BaseAgent:
                 }
             ],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -733,7 +735,7 @@ class BaseAgent:
             llm_model=self.llm,
             messages=[{"role": "system", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.7,
             top_p=1.0,
         )[0]
@@ -776,7 +778,7 @@ class BaseAgent:
             llm_model=self.llm,
             messages=[{"role": "system", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.7,
             top_p=1.0,
         )[0]
@@ -825,7 +827,7 @@ class BaseAgent:
             llm_model=self.llm,
             messages=[{"role": "system", "content": prompt}],
             return_num=1,
-            max_token_num=256,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.7,
             top_p=1.0,
         )[0].content

@@ -12,7 +12,9 @@ from litellm import token_counter
 from litellm.types.utils import Message
 
 from marble.graph.agent_graph import AgentGraph
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 from marble.utils.logger import get_logger
 
 
@@ -78,7 +80,7 @@ class EnginePlanner:
         memory: Any,
         config: Dict[str, Any],
         task: str,
-        model: str = "gpt-3.5-turbo",
+        model: str = "",
     ):
         """
         Initialize the EnginePlanner.
@@ -88,7 +90,7 @@ class EnginePlanner:
             memory (Any): Shared memory instance (an instance of SharedMemory).
             config (Dict[str, Any]): Configuration parameters.
             task (str): The overall task description.
-            model (str, optional): The LLM model to use. Defaults to "gpt-3.5-turbo".
+            model (str, optional): The LLM model to use. Defaults to env-configured model.
         """
         self.agent_graph = agent_graph
         self.memory = memory  # Expected to be an instance of SharedMemory.
@@ -96,7 +98,7 @@ class EnginePlanner:
         self.config = config
         self.current_progress = config.get("initial_progress", "")
         self.task = task
-        self.model = model
+        self.model = get_model_name(preferred=model)
         self.token_usage = 0
         self.logger.info("EnginePlanner initialized.")
 
@@ -164,7 +166,7 @@ class EnginePlanner:
                     llm_model=self.model,
                     messages=messages_agent,
                     return_num=1,
-                    max_token_num=512,
+                    max_token_num=get_max_token_num(default=2048),
                     temperature=0.7,
                     top_p=1.0,
                 )
@@ -210,7 +212,7 @@ class EnginePlanner:
                 llm_model=self.model,
                 messages=messages_final,
                 return_num=1,
-                max_token_num=1024,
+                max_token_num=get_max_token_num(default=1024),
                 temperature=0.7,
                 top_p=1.0,
             )
@@ -277,7 +279,7 @@ class EnginePlanner:
                 llm_model=self.model,
                 messages=messages,
                 return_num=1,
-                max_token_num=1024,
+                max_token_num=get_max_token_num(default=1024),
                 temperature=0.7,
                 top_p=1.0,
             )
@@ -334,7 +336,7 @@ class EnginePlanner:
                 llm_model=self.model,
                 messages=messages,
                 return_num=1,
-                max_token_num=1024,
+                max_token_num=get_max_token_num(default=1024),
                 temperature=0.7,
                 top_p=1.0,
             )
@@ -377,7 +379,7 @@ class EnginePlanner:
                 llm_model=self.model,
                 messages=messages,
                 return_num=1,
-                max_token_num=1024,
+                max_token_num=get_max_token_num(default=1024),
                 temperature=0.7,
                 top_p=1.0,
             )
@@ -427,7 +429,7 @@ class EnginePlanner:
                 }
             ],
             return_num=1,
-            max_token_num=2048,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -479,7 +481,7 @@ class EnginePlanner:
             llm_model=self.model,
             messages=messages,
             return_num=1,
-            max_token_num=256,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.3,
             top_p=1.0,
         )

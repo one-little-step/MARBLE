@@ -4,6 +4,7 @@ from semanticscholar import SemanticScholar
 
 from marble.llms.error_handler import api_calling_error_exponential_backoff
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 
 from .prompt_constructor import openai_format_prompt_construct
 
@@ -127,7 +128,7 @@ def write_bio_prompting(
     prompt_template: Dict[str, Union[str, List[str]]],
     model_name: str,
     return_num: Optional[int] = 1,
-    max_token_num: Optional[int] = 512,
+    max_token_num: Optional[int] = None,
     temperature: Optional[float] = 0.0,
     top_p: Optional[float] = None,
     stream: Optional[bool] = None,
@@ -141,7 +142,7 @@ def write_bio_prompting(
         model_name,
         messages,
         return_num=return_num,
-        max_token_num=max_token_num,
+        max_token_num=get_max_token_num(preferred=max_token_num, default=2048),
         temperature=temperature,
         top_p=top_p,
         stream=stream,
@@ -156,7 +157,7 @@ def summarize_domain_prompting(
     prompt_template: Dict[str, Union[str, List[str]]],
     model_name: str,
     return_num: Optional[int] = 1,
-    max_token_num: Optional[int] = 512,
+    max_token_num: Optional[int] = None,
     temperature: Optional[float] = 0.0,
     top_p: Optional[float] = None,
     stream: Optional[bool] = None,
@@ -170,7 +171,7 @@ def summarize_domain_prompting(
         model_name,
         messages,
         return_num=return_num,
-        max_token_num=max_token_num,
+        max_token_num=get_max_token_num(preferred=max_token_num, default=2048),
         temperature=temperature,
         top_p=top_p,
         stream=stream,

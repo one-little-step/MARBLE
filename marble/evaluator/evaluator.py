@@ -11,7 +11,9 @@ from ruamel.yaml import YAML
 
 from marble.agent import BaseAgent
 from marble.environments import BaseEnvironment
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 from marble.utils.logger import get_logger
 
 
@@ -27,7 +29,7 @@ class Evaluator:
             metrics_config (Dict[str, Any]): Configuration for the metrics to track.
         """
         self.logger = get_logger(self.__class__.__name__)
-        self.metrics_config = metrics_config
+        self.metrics_config = metrics_config or {}
         self.metrics:Dict[str, Any] = {
             "task_completion": [],
             "token_consumption": [],
@@ -38,11 +40,13 @@ class Evaluator:
             "agent_kpis": {},
             "code_quality": {}
         }
-        with open('evaluator/evaluator_prompts.json', 'r', encoding='utf-8') as f:
+        prompts_path = os.path.join(os.path.dirname(__file__), 'evaluator_prompts.json')
+        with open(prompts_path, 'r', encoding='utf-8') as f:
             self.evaluation_prompts = json.load(f)
 
         evaluate_llm_config = self.metrics_config.get('evaluate_llm', {})
-        self.llm = evaluate_llm_config.get('model', 'gpt-3.5-turbo') if isinstance(evaluate_llm_config, dict) else evaluate_llm_config
+        preferred = evaluate_llm_config.get('model') if isinstance(evaluate_llm_config, dict) else evaluate_llm_config
+        self.llm = get_model_name(preferred=preferred)
 
 
 
@@ -81,7 +85,7 @@ class Evaluator:
             llm_model=self.llm,
             messages=[{"role": "user", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -116,7 +120,7 @@ class Evaluator:
             llm_model=self.llm,
             messages=[{"role": "user", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -148,7 +152,7 @@ class Evaluator:
             llm_model=self.llm,
             messages=[{"role": "user", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -184,7 +188,7 @@ class Evaluator:
             llm_model=self.llm,
             messages=[{"role": "user", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -215,7 +219,7 @@ class Evaluator:
             llm_model=self.llm,
             messages=[{"role": "user", "content": prompt}],
             return_num=1,
-            max_token_num=512,
+            max_token_num=get_max_token_num(default=2048),
             temperature=0.0,
             top_p=None,
             stream=None,
@@ -321,9 +325,9 @@ class Evaluator:
                 # Ensure ratings are integers
                 ratings_dict: Dict[str, int] = {k: int(v) for k, v in ratings.items()}
                 return ratings_dict
-            except json.JSONDecodeError:
-                self.logger.error("Failed to parse JSON from assistant's answer.")
-                return {}
+        except json.JSONDecodeError:
+            self.logger.error("Failed to parse JSON from assistant's answer.")
+            return {}
         else:
             self.logger.error("No JSON found in assistant's answer.")
             return {}
@@ -587,7 +591,7 @@ class Evaluator:
                 llm_model=self.llm,
                 messages=[{"role": "user", "content": prompt}],
                 return_num=1,
-                max_token_num=4096,
+                max_token_num=get_max_token_num(default=4096),
                 temperature=0.0,
                 top_p=None,
                 stream=None,
