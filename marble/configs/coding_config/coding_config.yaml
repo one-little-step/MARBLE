@@ -12,7 +12,7 @@ relationships:
   - [agent3, agent2, "collaborates with"]
   # - [agent3, agent4, "collaborates with"]
 
-llm: "gpt-4o-mini"
+llm: ""
 
 environment:
   type: Coding
@@ -24,14 +24,15 @@ task:
   content: |-
     Software Development Task:
 
-    Please write a program called VideoCollaborationSuite. VideoCollaborationSuite is a collaborative video editing application that allows multiple users to work together on a video project in real-time. It provides tools for trimming, synchronizing subtitles, and adjusting playback speed, and supports real-time communication and feedback among team members.
+    Please write a program called 'Team_Treasure_Hunt' that is a multiplayer action game where teams of players collaborate to navigate through a series of challenging environments, collect treasures, and solve puzzles to reach a final treasure chamber. Each team member has unique abilities that are essential for solving specific puzzles and overcoming obstacles. The game includes various environments such as forests, caves, and ancient ruins, each with its own set of challenges. The team that collects the most treasures and reaches the final chamber first wins the game.
     1. Implementation requirements:
-       - The application must support multiple users editing a video simultaneously, with real-time updates and synchronization of changes.
-       - It should include a feature for automatic subtitle synchronization, allowing users to upload a video and subtitle file, and automatically align the subtitles with the video content. Users should be able to manually adjust the synchronization if needed.
-       - The application must provide a playback speed adjustment tool, allowing users to change the speed of the video playback for precise editing and review.
-       - The system should include a chat feature for real-time communication among users, enabling them to discuss and coordinate their editing activities.
-       - The application should support version control, allowing users to save different versions of the video and revert to previous states if necessary.
-       - The system should dynamically adapt to user feedback, such as suggestions for subtitle adjustments or playback speed changes, and allow for seamless collaboration and iterative improvements.
+       - Implement a game engine that supports multiplayer functionalities, allowing up to four players per team.
+       - Design different environments with varying levels of difficulty, including puzzles that require collaboration and the use of unique character abilities.
+       - Create a set of unique character abilities, such as strength (for moving heavy objects), agility (for navigating tight spaces), intelligence (for solving complex puzzles), and stealth (for avoiding traps).
+       - Develop a scoring system that rewards teams based on the number of treasures collected and the time taken to reach the final chamber.
+       - Provide comprehensive test specifications, including input scenarios such as different player actions, expected outputs like the game state changes, and edge cases such as players leaving the game or failing to solve puzzles.
+       - Ensure the game is robust and can handle unexpected inputs or behaviors from players, such as simultaneous actions or incorrect puzzle solutions.
+       - Test the game with different team compositions and strategies to ensure balanced and fair gameplay.
 
 
     2. Project structure:
@@ -94,7 +95,7 @@ memory:
   type: SharedMemory
 
 metrics:
-  evaluate_llm: "gpt-4o"
+  evaluate_llm: ""
   code_quality: true
   test_coverage: true
   collaboration_effectiveness: true
@@ -104,4 +105,4 @@ engine_planner:
 
 output:
   format: jsonl
-  file_path: "result/development_output.jsonl"
+  file_path: "development_output.jsonl"

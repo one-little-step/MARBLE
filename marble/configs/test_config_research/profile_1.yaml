@@ -147,7 +147,7 @@ environment:
   max_iterations: 3
   name: Research Collaboration Environment
   type: Research
-llm: gpt-3.5-turbo
+llm: ""
 memory:
   type: SharedMemory
 metrics:
@@ -156,7 +156,7 @@ metrics:
   evaluate_llm: gpt-4o-mini
   relevance: true
 output:
-  file_path: result/discussion_output.jsonl
+  file_path: discussion_output.jsonl
   format: jsonl
 relationships:
 - - agent1
