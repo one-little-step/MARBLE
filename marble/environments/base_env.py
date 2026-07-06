@@ -2,11 +2,13 @@
 Base environment module.
 """
 
-from typing import Any, Callable, Dict, List, Union
+from pathlib import Path
+import shutil
+from typing import Any, Callable, Dict, List, Optional, Union
 
 
 class BaseEnvironment:
-    def __init__(self, name: str, config: Dict[str, Any]):
+    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the environment.
 
@@ -14,6 +16,7 @@ class BaseEnvironment:
             name (str): The name of the environment.
             config (Dict[str, Any]): Configuration for the environment.
         """
+        config = config or {}
         self.name = name
         self.agents: List[Any] = []
         self.state: Dict[str, Any] = {}
@@ -27,6 +30,7 @@ class BaseEnvironment:
         self.ground_truth: str = config.get("ground_truth", "")
         self.max_iterations: int = config.get("max_iterations", 10)
         self.current_iteration: int = 0
+        self.workspace_dir: str = config.get("workspace_dir", "workspace")
         # Initialize the state with the task description
         self.state["task_description"] = self.task_description
 
@@ -99,3 +103,21 @@ class BaseEnvironment:
             Dict[str, Any]: The current environment state.
         """
         return self.state.copy()
+
+    def save_checkpoint(self, checkpoint_dir: Path) -> None:
+        """Persist environment state into checkpoint_dir."""
+        workspace_src = Path(self.workspace_dir)
+        workspace_dst = checkpoint_dir / "workspace"
+        if workspace_src.exists():
+            shutil.copytree(workspace_src, workspace_dst, dirs_exist_ok=True)
+        else:
+            workspace_dst.mkdir(parents=True, exist_ok=True)
+
+    def restore_checkpoint(self, checkpoint_dir: Path) -> None:
+        """Restore environment state from checkpoint_dir."""
+        workspace_src = checkpoint_dir / "workspace"
+        workspace_dst = Path(self.workspace_dir)
+        if workspace_src.exists():
+            if workspace_dst.exists():
+                shutil.rmtree(workspace_dst)
+            shutil.copytree(workspace_src, workspace_dst)
