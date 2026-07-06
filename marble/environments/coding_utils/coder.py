@@ -4,7 +4,9 @@ from typing import Any, Dict
 
 from ruamel.yaml import YAML
 
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 
 
 def create_solution_handler(
@@ -32,10 +34,13 @@ def create_solution_handler(
         full_path = os.path.join(env.workspace_dir, file_path)
 
         if os.path.exists(full_path):
-            return {
-                "success": False,
-                "error-msg": f"Solution file already exists at {full_path}. Operation aborted.",
-            }
+            existing_size = os.path.getsize(full_path)
+            if existing_size > 0:
+                return {
+                    "success": False,
+                    "error-msg": f"Solution file already exists at {full_path}. Operation aborted.",
+                }
+            # Empty file: safe to overwrite so the simulation can recover.
 
         config_path = "marble/configs/coding_config/coding_config.yaml"
         if not os.path.exists(config_path):
@@ -78,7 +83,7 @@ def create_solution_handler(
                 {"role": "user", "content": user_prompt},
             ],
             return_num=1,
-            max_token_num=4096,
+            max_token_num=get_max_token_num(default=4096),
             temperature=0.0,
         )[0]
 
@@ -224,8 +229,8 @@ def register_coder_actions(env):
                         },
                         "model_name": {
                             "type": "string",
-                            "description": "Name of the LLM model to use",
-                            "default": "gpt-3.5-turbo",
+                            "description": "Name of the LLM model to use (overridden by LLM_SOURCE in .env)",
+                            "default": get_model_name(),
                         },
                     },
                     "required": ["task_description", "model_name"],

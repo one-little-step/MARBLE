@@ -4,7 +4,9 @@ import os
 import subprocess
 from typing import Any, Dict
 
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 
 
 def extract_python_code(content: str) -> str:
@@ -103,7 +105,7 @@ def run_and_debug_solution_handler(
                     {"role": "user", "content": user_prompt_suggestions},
                 ],
                 return_num=1,
-                max_token_num=2048,
+                max_token_num=get_max_token_num(default=2048),
                 temperature=0.0,
             )[0]
 
@@ -125,7 +127,7 @@ def run_and_debug_solution_handler(
                     {"role": "user", "content": user_prompt_fix},
                 ],
                 return_num=1,
-                max_token_num=2048,
+                max_token_num=get_max_token_num(default=2048),
                 temperature=0.0,
             )[0]
 
@@ -164,7 +166,8 @@ def register_debugger_actions(env):
                     "properties": {
                         "model_name": {
                             "type": "string",
-                            "description": "Name of the LLM model to use (e.g., 'gpt-3.5-turbo', 'gpt-4')",
+                            "description": "Name of the LLM model to use (overridden by LLM_SOURCE in .env)",
+                            "default": get_model_name(),
                         },
                         "file_path": {
                             "type": "string",

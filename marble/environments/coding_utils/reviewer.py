@@ -6,7 +6,9 @@ from typing import Any, Dict
 
 from ruamel.yaml import YAML
 
+from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
+from marble.llms.token_config import get_max_token_num
 
 
 def log_debug_info(message: str, log_file: str = "marble/logs/advice_log"):
@@ -102,7 +104,7 @@ def give_advice_and_revise_handler(
                 {"role": "user", "content": user_prompt_advice},
             ],
             return_num=1,
-            max_token_num=4096,
+            max_token_num=get_max_token_num(default=4096),
             temperature=0.0,
         )[0]
 
@@ -142,7 +144,7 @@ def give_advice_and_revise_handler(
                 {"role": "user", "content": user_prompt_strategy},
             ],
             return_num=1,
-            max_token_num=4096,
+            max_token_num=get_max_token_num(default=4096),
             temperature=0.0,
         )[0]
 
@@ -268,8 +270,8 @@ def register_reviewer_actions(env):
                         },
                         "model_name": {
                             "type": "string",
-                            "description": "Name of the LLM model to use",
-                            "default": "gpt-3.5-turbo",
+                            "description": "Name of the LLM model to use (overridden by LLM_SOURCE in .env)",
+                            "default": get_model_name(),
                         },
                     },
                     "required": ["task_description", "model_name"],
