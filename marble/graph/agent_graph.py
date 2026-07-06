@@ -7,9 +7,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from marble.agent.base_agent import BaseAgent
 from marble.configs.config import Config
 from marble.utils.logger import get_logger
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
 
-class AgentGraph:
+class AgentGraph(PickleSafeLoggerMixin):
     """
     Represents the network structure of agents, supporting different execution methods
     such as hierarchical execution and cooperative communication.

@@ -5,8 +5,10 @@ Base memory module for agents.
 import json
 from typing import Any, List
 
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
-class BaseMemory:
+
+class BaseMemory(PickleSafeLoggerMixin):
     """Base class for agent memory modules."""
 
     def __init__(self) -> None:

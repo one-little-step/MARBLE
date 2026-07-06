@@ -5,7 +5,7 @@ Base agent module.
 import json
 import uuid
 from collections import defaultdict
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, DefaultDict, Dict, List, Optional, Tuple, TypeVar, Union
 
 from litellm.utils import token_counter
 
@@ -15,6 +15,7 @@ from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
 from marble.memory import BaseMemory, SharedMemory
 from marble.utils.logger import get_logger
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
 EnvType = Union[BaseEnvironment, WebEnvironment, CodingEnvironment]
 AgentType = TypeVar("AgentType", bound="BaseAgent")
@@ -29,7 +30,7 @@ def convert_to_str(result: Any) -> str:
         return str(result)  # handle other types
 
 
-class BaseAgent:
+class BaseAgent(PickleSafeLoggerMixin):
     """
     Base class for all agents.
     """
@@ -114,6 +115,17 @@ class BaseAgent:
 
     def set_agent_graph(self, agent_graph: Any) -> None:
         self.agent_graph = agent_graph
+
+    def __getstate__(self) -> Dict[str, Any]:
+        state = super().__getstate__()
+        if "msg_box" in state:
+            state["msg_box"] = dict(state["msg_box"])
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        super().__setstate__(state)
+        self.msg_box = defaultdict(lambda: defaultdict(list))
+        self.msg_box.update(state.get("msg_box", {}))
 
     def perceive(self, state: Any) -> Any:
         """

@@ -15,9 +15,10 @@ from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
 from marble.utils.logger import get_logger
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
 
-class Evaluator:
+class Evaluator(PickleSafeLoggerMixin):
     """
     Evaluator class for tracking metrics like task completion success rate and token consumption.
     """

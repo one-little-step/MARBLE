@@ -5,8 +5,10 @@ Shared memory module allowing agents to communicate.
 from threading import Lock
 from typing import Any, Dict
 
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
-class SharedMemory:
+
+class SharedMemory(PickleSafeLoggerMixin):
     """
     Shared memory accessible by multiple agents.
     """
@@ -51,3 +53,13 @@ class SharedMemory:
         """
         with self.lock:
             return self.storage.copy()
+
+    def __getstate__(self) -> Dict[str, Any]:
+        state = self.__dict__.copy()
+        if "lock" in state:
+            del state["lock"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        self.__dict__.update(state)
+        self.lock = Lock()
