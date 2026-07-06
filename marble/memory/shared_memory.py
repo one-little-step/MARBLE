@@ -55,11 +55,11 @@ class SharedMemory(PickleSafeLoggerMixin):
             return self.storage.copy()
 
     def __getstate__(self) -> Dict[str, Any]:
-        state = self.__dict__.copy()
+        state = super().__getstate__()
         if "lock" in state:
             del state["lock"]
         return state
 
     def __setstate__(self, state: Dict[str, Any]) -> None:
-        self.__dict__.update(state)
+        super().__setstate__(state)
         self.lock = Lock()
