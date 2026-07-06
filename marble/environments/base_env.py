@@ -105,7 +105,12 @@ class BaseEnvironment:
         return self.state.copy()
 
     def save_checkpoint(self, checkpoint_dir: Path) -> None:
-        """Persist environment state into checkpoint_dir."""
+        """Persist environment state into checkpoint_dir.
+
+        Subclasses that manage external state (e.g. database connections,
+        Minecraft worlds, browser sessions) should override this method to
+        capture that state in addition to the workspace directory.
+        """
         workspace_src = Path(self.workspace_dir)
         workspace_dst = checkpoint_dir / "workspace"
         if workspace_src.exists():
@@ -114,7 +119,12 @@ class BaseEnvironment:
             workspace_dst.mkdir(parents=True, exist_ok=True)
 
     def restore_checkpoint(self, checkpoint_dir: Path) -> None:
-        """Restore environment state from checkpoint_dir."""
+        """Restore environment state from checkpoint_dir.
+
+        Subclasses that manage external state (e.g. database connections,
+        Minecraft worlds, browser sessions) should override this method to
+        restore that state in addition to the workspace directory.
+        """
         workspace_src = checkpoint_dir / "workspace"
         workspace_dst = Path(self.workspace_dir)
         if workspace_src.exists():

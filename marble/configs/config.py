@@ -12,6 +12,12 @@ from marble.llms.client_factory import get_model_name
 class Config:
     """
     Configuration class to load and store system configurations.
+
+    This class does not store API keys or other secrets. LLM model selection is
+    driven by environment variables (see ``LLM_SOURCE``); any model string in the
+    config is only used to select among the env-configured endpoints. Secrets
+    should remain in environment variables and never be placed in config files,
+    because the Config object is pickled into ``engine.pkl`` checkpoints.
     """
 
     def __init__(self, data: Dict[str, Any]):
