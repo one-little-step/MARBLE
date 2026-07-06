@@ -21,6 +21,35 @@ class RunPaths:
     def log_dir(self) -> Path:
         return self.log_file.parent
 
+    @property
+    def checkpoint_dir(self) -> Path:
+        return self.base_dir / "checkpoints"
+
+
+def create_checkpoint_dir(base_dir: Path, iteration: int) -> Path:
+    """Create a numbered checkpoint directory under base_dir/checkpoints/."""
+    checkpoint_dir = base_dir / "checkpoints" / f"iter_{iteration:03d}"
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    return checkpoint_dir
+
+
+def update_latest_checkpoint_symlink(base_dir: Path, checkpoint_dir: Path) -> None:
+    """Create or update base_dir/checkpoints/latest to point to checkpoint_dir."""
+    latest_link = base_dir / "checkpoints" / "latest"
+    if latest_link.exists() or latest_link.is_symlink():
+        latest_link.unlink()
+    latest_link.symlink_to(checkpoint_dir, target_is_directory=True)
+
+
+def copy_workspace(src: Path, dst: Path) -> None:
+    """Copy a workspace directory, replacing dst if it exists."""
+    if dst.exists():
+        shutil.rmtree(dst)
+    if src.exists():
+        shutil.copytree(src, dst)
+    else:
+        dst.mkdir(parents=True, exist_ok=True)
+
 
 def resolve_scenario(config_path: str) -> str:
     """Infer scenario name from config file path."""
