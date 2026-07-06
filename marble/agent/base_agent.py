@@ -122,10 +122,23 @@ class BaseAgent(PickleSafeLoggerMixin):
             state["msg_box"] = dict(state["msg_box"])
         return state
 
+    @staticmethod
+    def _restore_msg_box(
+        data: Dict[str, Any]
+    ) -> Dict[str, Dict[str, List[Tuple[int, str]]]]:
+        """Recursively restore a plain dict back to a nested defaultdict(list)."""
+        restored: Dict[str, Dict[str, List[Tuple[int, str]]]] = defaultdict(
+            lambda: defaultdict(list)
+        )
+        for outer_key, inner in data.items():
+            inner_restored: Dict[str, List[Tuple[int, str]]] = defaultdict(list)
+            inner_restored.update(inner)
+            restored[outer_key] = inner_restored
+        return restored
+
     def __setstate__(self, state: Dict[str, Any]) -> None:
         super().__setstate__(state)
-        self.msg_box = defaultdict(lambda: defaultdict(list))
-        self.msg_box.update(state.get("msg_box", {}))
+        self.msg_box = self._restore_msg_box(state.get("msg_box", {}))
 
     def perceive(self, state: Any) -> Any:
         """
