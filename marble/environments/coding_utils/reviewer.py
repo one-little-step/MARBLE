@@ -1,4 +1,5 @@
 import datetime
+import functools
 import json
 import os
 import re
@@ -9,6 +10,10 @@ from ruamel.yaml import YAML
 from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
+
+
+def _give_advice_and_revise_handler(env, **kwargs):
+    return give_advice_and_revise_handler(env, **kwargs)
 
 
 def log_debug_info(message: str, log_file: str = "marble/logs/advice_log"):
@@ -255,7 +260,7 @@ def register_reviewer_actions(env):
     """
     env.register_action(
         "give_advice_and_revise",
-        handler=lambda **kwargs: give_advice_and_revise_handler(env, **kwargs),
+        handler=functools.partial(_give_advice_and_revise_handler, env),
         description={
             "type": "function",
             "function": {

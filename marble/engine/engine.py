@@ -4,6 +4,11 @@
 The core engine module that coordinates agents within the environment.
 """
 import json
+import pickle
+import shutil
+import traceback
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from marble.agent import BaseAgent
@@ -23,6 +28,11 @@ from marble.graph.agent_graph import AgentGraph
 from marble.memory.base_memory import BaseMemory
 from marble.memory.shared_memory import SharedMemory
 from marble.utils.logger import get_logger
+from marble.utils.output_manager import (
+    copy_workspace,
+    create_checkpoint_dir,
+    update_latest_checkpoint_symlink,
+)
 
 EnvType = Union[
     BaseEnvironment,
@@ -58,15 +68,17 @@ class Engine:
             self.logger.error(f"Failed to read code from {file_path}: {e}")
             return ""
 
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, run_base_dir: Optional[Path] = None):
         """
         Initialize the Engine with the given configuration.
 
         Args:
             config (Config): Configuration parameters.
+            run_base_dir: Optional Path to the run output directory, used for checkpoint storage.
         """
         self.logger = get_logger(self.__class__.__name__)
         self.config = config
+        self._run_base_dir = run_base_dir
         self.planning_method = config.engine_planner.get("planning_method", "naive")
         # Initialize Environment
         self.environment = self._initialize_environment(config.environment)
@@ -98,6 +110,95 @@ class Engine:
         self.current_iteration = 0
 
         self.logger.info("Engine initialized.")
+
+    def save_checkpoint(
+        self,
+        iteration_label: str,
+        exception: Optional[Exception] = None,
+    ) -> Path:
+        """
+        Serialize the Engine and environment workspace to a checkpoint directory.
+
+        Args:
+            iteration_label: Directory name segment, e.g. "iter_003" or "failure".
+            exception: If provided, include traceback in checkpoint metadata.
+
+        Returns:
+            Path to the checkpoint directory.
+        """
+        if self._run_base_dir is None:
+            raise RuntimeError(
+                "Engine was not initialized with run_base_dir; checkpointing is disabled."
+            )
+        checkpoint_dir = self._run_base_dir / "checkpoints" / iteration_label
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+        # Snapshot the engine object.
+        engine_path = checkpoint_dir / "engine.pkl"
+        with open(engine_path, "wb") as f:
+            pickle.dump(self, f)
+
+        # Snapshot environment/workspace state.
+        self.environment.save_checkpoint(checkpoint_dir)
+
+        # Metadata.
+        metadata = {
+            "timestamp": datetime.now().isoformat(),
+            "iteration": self.current_iteration,
+            "coordination_mode": self.coordinate_mode,
+            "base_dir": str(self._run_base_dir),
+            "config_backup_file": str(self._run_base_dir / "config.yaml"),
+            "exception": None,
+        }
+        if exception is not None:
+            metadata["exception"] = "".join(
+                traceback.format_exception(type(exception), exception, exception.__traceback__)
+            )
+
+        with open(checkpoint_dir / "checkpoint.json", "w", encoding="utf-8") as f:
+            json.dump(metadata, f, indent=2)
+
+        self.logger.info(f"Checkpoint saved: {checkpoint_dir}")
+        return checkpoint_dir
+
+    def restore_from_checkpoint(self, checkpoint_dir: Path) -> None:
+        """
+        Restore environment workspace from a checkpoint directory.
+        Called on a freshly unpickled Engine instance.
+        """
+        self.environment.restore_checkpoint(checkpoint_dir)
+        self.logger = get_logger(self.__class__.__name__)
+        self.logger.info(f"Engine restored from checkpoint: {checkpoint_dir}")
+
+    def resume(self) -> None:
+        """Resume the simulation from the current iteration."""
+        self.logger.info(
+            f"Resuming simulation at iteration {self.current_iteration} in {self.coordinate_mode} mode."
+        )
+        if isinstance(self.environment, MinecraftEnvironment):
+            self.environment.launch()
+        try:
+            if self.coordinate_mode == "star":
+                self.star_coordinate()
+            elif self.coordinate_mode == "graph":
+                self.graph_coordinate()
+            elif self.coordinate_mode == "chain":
+                self.chain_coordinate()
+            elif self.coordinate_mode == "tree":
+                self.tree_coordinate()
+            else:
+                raise ValueError(f"Unsupported coordinate mode: {self.coordinate_mode}")
+        finally:
+            if isinstance(self.environment, MinecraftEnvironment):
+                self.environment.finish()
+
+    def _save_failure_checkpoint(self, exc: Exception) -> Path:
+        """Save a failure checkpoint and return its path."""
+        checkpoint_dir = self.save_checkpoint("failure", exception=exc)
+        self.logger.error(
+            f"Failure checkpoint saved to {checkpoint_dir}: {exc}"
+        )
+        return checkpoint_dir
 
     def _initialize_environment(self, env_config: Dict[str, Any]) -> BaseEnvironment:
         """
@@ -316,6 +417,13 @@ class Engine:
             # self.evaluator.evaluate_kpi(self.task, results_str)
             self.evaluator.metrics["planning_score"].append(-1)
 
+            # Initial assignment is a checkpoint boundary.
+            checkpoint_dir = self.save_checkpoint(
+                f"iter_{self.current_iteration:03d}"
+            )
+            if self._run_base_dir is not None:
+                update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
+
             end_on_iter_0 = False
             if not continue_simulation:
                 end_on_iter_0 = True
@@ -426,6 +534,11 @@ class Engine:
                     continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
                 summary_data["iterations"].append(iteration_data)
+                checkpoint_dir = self.save_checkpoint(
+                    f"iter_{self.current_iteration:03d}"
+                )
+                if self._run_base_dir is not None:
+                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -483,7 +596,8 @@ class Engine:
                 self.logger.info("Engine graph-based coordination loop completed.")
             self.logger.info("Engine graph-based coordination loop completed.")
 
-        except Exception:
+        except Exception as exc:
+            self._save_failure_checkpoint(exc)
             self.logger.exception("An error occurred during graph-based coordination.")
             raise
         finally:
@@ -584,6 +698,11 @@ class Engine:
                 continue_simulation = self.planner.decide_next_step(agents_results)
                 iteration_data["continue_simulation"] = continue_simulation
                 summary_data["iterations"].append(iteration_data)
+                checkpoint_dir = self.save_checkpoint(
+                    f"iter_{self.current_iteration:03d}"
+                )
+                if self._run_base_dir is not None:
+                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -644,7 +763,8 @@ class Engine:
                 self.logger.info("Engine star-based coordination loop completed.")
             self.logger.info("Engine simulation loop completed.")
 
-        except Exception:
+        except Exception as exc:
+            self._save_failure_checkpoint(exc)
             self.logger.exception("An error occurred during simulation.")
             raise
         finally:
@@ -757,6 +877,11 @@ class Engine:
                 )
                 iteration_data["continue_simulation"] = continue_simulation
                 summary_data["iterations"].append(iteration_data)
+                checkpoint_dir = self.save_checkpoint(
+                    f"iter_{self.current_iteration:03d}"
+                )
+                if self._run_base_dir is not None:
+                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -803,7 +928,8 @@ class Engine:
                 self.logger.info("Engine chain-based coordination loop completed.")
             self.logger.info("Chain-based coordination simulation completed.")
 
-        except Exception:
+        except Exception as exc:
+            self._save_failure_checkpoint(exc)
             self.logger.exception("An error occurred during chain-based coordination.")
             raise
         finally:
@@ -884,6 +1010,11 @@ class Engine:
                 continue_simulation = self.planner.decide_next_step(results)
                 iteration_data["continue_simulation"] = continue_simulation
                 summary_data["iterations"].append(iteration_data)
+                checkpoint_dir = self.save_checkpoint(
+                    f"iter_{self.current_iteration:03d}"
+                )
+                if self._run_base_dir is not None:
+                    update_latest_checkpoint_symlink(self._run_base_dir, checkpoint_dir)
                 if not continue_simulation:
                     self.logger.info(
                         "EnginePlanner decided to terminate the simulation."
@@ -940,7 +1071,8 @@ class Engine:
                 self.logger.info("Engine tree-based coordination loop completed.")
             self.logger.info("Tree-based coordination simulation completed.")
 
-        except Exception:
+        except Exception as exc:
+            self._save_failure_checkpoint(exc)
             self.logger.exception("An error occurred during tree-based coordination.")
             raise
         finally:

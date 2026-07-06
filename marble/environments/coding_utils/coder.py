@@ -1,3 +1,4 @@
+import functools
 import os
 import re
 from typing import Any, Dict
@@ -7,6 +8,10 @@ from ruamel.yaml import YAML
 from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
+
+
+def _create_solution_handler(env, **kwargs):
+    return create_solution_handler(env, **kwargs)
 
 
 def create_solution_handler(
@@ -216,7 +221,7 @@ def register_coder_actions(env):
     """
     env.register_action(
         "create_solution",
-        handler=lambda **kwargs: create_solution_handler(env, **kwargs),
+        handler=functools.partial(_create_solution_handler, env),
         description={
             "type": "function",
             "function": {
