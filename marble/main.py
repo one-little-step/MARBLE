@@ -129,6 +129,7 @@ def main() -> None:
     run_paths = create_run_paths(
         config_path=args.config_path,
         output_file=output_file,
+        timestamp=os.environ.get("OUTPUT_TIMESTAMP"),
     )
     setup_logging(run_paths.log_file)
     backup_config(args.config_path, run_paths.config_backup_file)

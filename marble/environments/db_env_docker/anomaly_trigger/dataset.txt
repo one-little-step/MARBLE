@@ -3246,3 +3246,7 @@ python main.py --anomaly INSERT_LARGE_DATA --threads 100 --ncolumn 20 --nrow 100
 python main.py --anomaly INSERT_LARGE_DATA --threads 100 --ncolumn 20 --nrow 100 --colsize 100 ended at 1741508291
 python main.py --anomaly FETCH_LARGE_DATA started at 1741508313
 python main.py --anomaly FETCH_LARGE_DATA ended at 1741508346
+python main.py --anomaly INSERT_LARGE_DATA --threads 100 --ncolumn 20 --nrow 100 --colsize 100 started at 1783837202
+python main.py --anomaly INSERT_LARGE_DATA --threads 100 --ncolumn 20 --nrow 100 --colsize 100 ended at 1783837262
+python main.py --anomaly FETCH_LARGE_DATA started at 1783837285
+python main.py --anomaly FETCH_LARGE_DATA ended at 1783837318

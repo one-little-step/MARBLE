@@ -19,13 +19,13 @@ The config files are in `marble/configs/test_config_database`. I have used OpenA
 In `marble/result/`, you will also need to set up these folders
 
 ```
-result_gpt-3.5-turbo/
+result_deepseek-v4-flash/
 result_gpt-4o-mini/
 result-llama-3.1-8b/
 result-llama-3.1-70b/
 result-llama-3.3-70b/
 ```
 
-Run `bash run_simulation.sh` to execute the example code. You could tweak the prompt to run all other benchmark cases. This particular example will save to `result_gpt-3.5-turbo/`.
+Run `bash run_simulation.sh` to execute the example code. You could tweak the prompt to run all other benchmark cases. This particular example will save to `result_deepseek-v4-flash/`.
 
 To run evaluation, place `batch_eval.py` into the `marble/result/` folder and execute.

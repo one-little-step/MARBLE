@@ -32,12 +32,12 @@ environment:
   task_id: 24
   task_name: test
   type: Minecraft
-llm: gpt-3.5-turbo
+llm: deepseek-v4-flash
 memory:
   type: SharedMemory
 metrics:
   evaluate_llm:
-    model: gpt-3.5-turbo
+    model: deepseek-v4-flash
     provider: openai
 output:
   file_path: result/minecraft/discussion_output_gpt-35-turbo_1.jsonl

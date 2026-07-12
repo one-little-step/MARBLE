@@ -1,3 +1,4 @@
+import os
 import warnings
 from typing import Any, Dict, List, Union
 
@@ -24,6 +25,9 @@ class LongTermMemory(BaseMemory):
         """
         super().__init__()
         self.storage: List[tuple[Any, Any]] = []
+        self.embedding_model: str = os.environ.get(
+            "EMBEDDING_MODEL", "text-embedding-3-small"
+        )
 
     def update(self, key: str, information: Dict[str, Any]) -> None:
         """
@@ -34,7 +38,7 @@ class LongTermMemory(BaseMemory):
             information (Dict[str, Union[str, Message]]): Information to store.
         """
         embedding = text_embedding(
-            model="text-embedding-3-small",
+            model=self.embedding_model,
             input=str(information),
         )
         embedding_array: NDArray[Any] = np.array(embedding)
@@ -69,7 +73,7 @@ class LongTermMemory(BaseMemory):
         if not self.storage:
             return None
         embedding = text_embedding(
-            model="text-embedding-3-small",
+            model=self.embedding_model,
             input=str(information),
         )
         embedding_array: NDArray[Any] = np.array(embedding)

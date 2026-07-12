@@ -148,7 +148,7 @@ Created `.env` file in project root and added `python-dotenv` loading to main en
 ## 2. Model Configuration Updates (deepseek-v4-flash)
 
 ### Problem
-Config files for research, coding, reasoning, and world scenarios still had old model names (`gpt-3.5-turbo`, `gpt-4o-mini`, `gpt-4o`) which are not supported by the API provider.
+Config files for research, coding, reasoning, and world scenarios still had old model names (`deepseek-v4-flash`, `gpt-4o-mini`, `gpt-4o`) which are not supported by the API provider.
 
 LiteLLM requires a provider prefix for model names. For OpenAI-compatible APIs like opencode.ai, the model must be prefixed with `openai/`.
 
@@ -163,14 +163,14 @@ Updated all config files to use the correct model format:
 
 | Config File | Old Model | New Model | Client |
 |-------------|-----------|-----------|--------|
-| `test_config_research/profile_1.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_research/profile_2.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_research/profile_3.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_reasoning_reflexion.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_reasoning_react.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_reasoning_cot.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_research/profile_1.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_research/profile_2.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_research/profile_3.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_reasoning_reflexion.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_reasoning_react.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_reasoning_cot.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
 | `coding_config/coding_config.yaml` | `gpt-4o-mini` | `openai/deepseek-v4-flash` | LiteLLM |
-| `test_config_world/test_config_world.yaml` | `gpt-3.5-turbo` | `openai/deepseek-v4-flash` | LiteLLM |
+| `test_config_world/test_config_world.yaml` | `deepseek-v4-flash` | `openai/deepseek-v4-flash` | LiteLLM |
 | `test_config/werewolf_config/werewolf_config.yaml` | `deepseek-v4-flash` | `deepseek-v4-flash` | OpenAI |
 
 #### Changes Per File
@@ -178,7 +178,7 @@ Updated all config files to use the correct model format:
 **Research configs (3 files):**
 ```yaml
 # Before
-llm: gpt-3.5-turbo
+llm: deepseek-v4-flash
 
 # After
 llm: openai/deepseek-v4-flash
@@ -187,9 +187,9 @@ llm: openai/deepseek-v4-flash
 **Reasoning configs (3 files):**
 ```yaml
 # Before
-llm: gpt-3.5-turbo
+llm: deepseek-v4-flash
 evaluate_llm:
-  model: gpt-3.5-turbo
+  model: deepseek-v4-flash
 
 # After
 llm: openai/deepseek-v4-flash
@@ -211,8 +211,8 @@ evaluate_llm: "openai/deepseek-v4-flash"
 **World config:**
 ```yaml
 # Before
-llm: "gpt-3.5-turbo"
-evaluate_llm: "gpt-3.5-turbo"
+llm: "deepseek-v4-flash"
+evaluate_llm: "deepseek-v4-flash"
 
 # After
 llm: "openai/deepseek-v4-flash"

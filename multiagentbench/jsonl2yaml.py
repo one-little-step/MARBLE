@@ -77,7 +77,7 @@ def main():
     parser.add_argument(
         "--default_llm",
         type=str,
-        default="gpt-3.5-turbo",
+        default="deepseek-v4-flash",
         help="Default value for llm.",
     )
     parser.add_argument(

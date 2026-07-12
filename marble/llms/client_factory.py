@@ -48,7 +48,7 @@ def get_model_name(preferred: Optional[str] = None) -> str:
         preferred_norm = preferred.strip()
         is_rits_model = preferred_norm.startswith("moonshotai/") or preferred_norm.startswith("ibm/")
         is_openai_model = preferred_norm.startswith("openai/") or preferred_norm in (
-            "gpt-3.5-turbo",
+            "deepseek-v4-flash",
             "gpt-4o",
             "deepseek-v4-flash",
         )

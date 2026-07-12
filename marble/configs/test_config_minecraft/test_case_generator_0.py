@@ -110,7 +110,7 @@ for model in tqdm(models):
         ]
         task_config["memory"] = {"type": "SharedMemory"}
         task_config["metrics"] = {
-            "evaluate_llm": {"model": "gpt-3.5-turbo", "provider": "openai"}
+            "evaluate_llm": {"model": "deepseek-v4-flash", "provider": "openai"}
         }
         task_config["engine_planner"] = {"initial_progress": "Starting the simulation."}
         task_config["llm"] = long_model_name

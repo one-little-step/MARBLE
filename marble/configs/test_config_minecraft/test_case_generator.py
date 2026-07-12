@@ -13,7 +13,7 @@ with open("data/blueprint_description_all.json", "r") as f:
 
 models = [
     ["gpt-4o-mini", "gpt-4o-mini"],
-    ["gpt-35-turbo", "gpt-3.5-turbo"],
+    ["gpt-35-turbo", "deepseek-v4-flash"],
     ["llama-31-8b", "together_ai/meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"],
     ["llama-31-70b", "together_ai/meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"],
     ["llama-33-70b", "together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo"],
@@ -26,7 +26,7 @@ models = [
 #     ],
 #     [
 #         "gpt-35-turbo",
-#         "gpt-3.5-turbo"
+#         "deepseek-v4-flash"
 #     ],
 #     [
 #         "llama-31-8b",
@@ -131,7 +131,7 @@ for model in tqdm(models):
         ]
         task_config["memory"] = {"type": "SharedMemory"}
         task_config["metrics"] = {
-            "evaluate_llm": {"model": "gpt-3.5-turbo", "provider": "openai"}
+            "evaluate_llm": {"model": "deepseek-v4-flash", "provider": "openai"}
         }
         task_config["engine_planner"] = {"initial_progress": "Starting the simulation."}
         task_config["llm"] = long_model_name

@@ -42,7 +42,7 @@ metrics:
   # Define metrics configurations for the Evaluator
   # Example:
   evaluate_llm:
-    model: gpt-3.5-turbo
+    model: deepseek-v4-flash
     provider: openai
 
 engine_planner:

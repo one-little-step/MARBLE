@@ -42,14 +42,14 @@ metrics:
   # Define metrics configurations for the Evaluator
   # Example:
   evaluate_llm:
-    model: gpt-3.5-turbo
+    model: deepseek-v4-flash
     provider: openai
 
 engine_planner:
   initial_progress: "Starting the simulation."
   # Additional engine planner configurations if needed
 
-llm: gpt-3.5-turbo
+llm: deepseek-v4-flash
 
 output:
   file_path: result/minecraft/discussion_output_gpt_35_turbo.jsonl

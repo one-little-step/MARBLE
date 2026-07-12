@@ -119,7 +119,7 @@ python marble/main.py --config_path marble/configs/coding_config/coding_config.y
 ### Database (DB anomaly diagnosis)
 
 ```bash
-python marble/main.py --config marble/configs/test_config_database/gpt-3.5-turbo_E_COMMERCE_FETCH_LARGE_DATA_INSERT_LARGE_DATA.yaml
+python marble/main.py --config marble/configs/test_config_database/deepseek-v4-flash_E_COMMERCE_FETCH_LARGE_DATA_INSERT_LARGE_DATA.yaml
 ```
 
 **Requires:** Docker + sudo (PostgreSQL + Prometheus containers)
@@ -194,7 +194,7 @@ python marble/main.py --config marble/configs/test_config.yaml
 ```bash
 # Batch update model name across all configs
 python scripts/coding/utils/keyword_changing.py \
-  --old_model "gpt-4o-mini" --new_model "gpt-3.5-turbo"
+  --old_model "gpt-4o-mini" --new_model "deepseek-v4-flash"
 
 # Read benchmark categories
 python scripts/coding/utils/read_benchmark_category.py

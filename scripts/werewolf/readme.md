@@ -25,7 +25,7 @@ use_daily_tasks: True  # Enable daily guidance for villagers
 
 ### API configurations
 villager_config:
-  base_model: "gpt-3.5-turbo"
+  base_model: "deepseek-v4-flash"
   api_key: "your_villager_api_key"
 
 werewolf_config:
