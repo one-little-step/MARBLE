@@ -5,8 +5,6 @@ import os
 import re
 from typing import Any, Dict
 
-from ruamel.yaml import YAML
-
 from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
@@ -36,7 +34,7 @@ def give_advice_and_revise_handler(
 
     Args:
         env: The environment instance.
-        task_description (str): Task description (not used, will read from config).
+        task_description (str): Full task description used to review and revise the solution.
         model_name (str): Name of the LLM model to use.
 
     Returns:
@@ -63,18 +61,7 @@ def give_advice_and_revise_handler(
                 "error-msg": "Solution file is empty or contains invalid code. Please use create_solution first to generate valid code",
             }
 
-        config_path = "marble/configs/coding_config/coding_config.yaml"
-        if not os.path.exists(config_path):
-            return {
-                "success": False,
-                "error-msg": f"Config file not found at {config_path}",
-            }
-
-        yaml = YAML()
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = yaml.load(f)
-
-        full_task_description = config["task"]["content"]
+        full_task_description = task_description
 
         requirements_start = "1. Implementation requirements:\n"
         requirements_end = "\n\n2. Project structure:"

@@ -10,6 +10,7 @@ from litellm.types.utils import Message
 
 from marble.llms.client_factory import (
     _require_env,
+    get_default_timeout,
     get_llm_source,
     get_model_name,
 )
@@ -189,6 +190,7 @@ def _model_prompting_inner(
         "api_key": api_key,
         "base_url": base_url,
         "drop_params": True,  # Silently drop unsupported params (e.g. thinking)
+        "timeout": get_default_timeout(),
     }
 
     # RITS (Kimi/K2) returns empty responses when ``max_tokens`` is used;

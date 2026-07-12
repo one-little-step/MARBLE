@@ -1,38 +1,31 @@
-## Task 3 Report: Timestamped output/log directory manager
+# Task 3 Report: Add environment checkpoint hooks
 
-**Status:** DONE
+## Status
+DONE
 
-### Summary of changes
+## Summary
+Implemented default `save_checkpoint` / `restore_checkpoint` hooks on `BaseEnvironment` and added a round-trip test.
 
-Created `marble/utils/output_manager.py` to manage timestamped run directories. It provides a `RunPaths` dataclass, directory creation logic, logging setup, and config backup. The module infers a scenario name from the config path (parent directory for nested configs, file stem for top-level configs) and builds a structure under `OUTPUT_ROOT_DIR` (defaulting to `outputs/<scenario>/<timestamp>/`).
+## Changes
+- `marble/environments/base_env.py`:
+  - Added `from pathlib import Path` and `import shutil` imports.
+  - Made `config` optional (`Optional[Dict[str, Any]] = None`) and default to `{}`.
+  - Added `self.workspace_dir: str = config.get("workspace_dir", "workspace")` in `__init__`.
+  - Added `save_checkpoint(checkpoint_dir: Path)` that copies `self.workspace_dir` into `checkpoint_dir/workspace/`, creating an empty destination directory when no workspace exists.
+  - Added `restore_checkpoint(checkpoint_dir: Path)` that copies `checkpoint_dir/workspace/` back to `self.workspace_dir`, replacing the existing workspace if present.
+- `tests/test_checkpoint_resume.py`:
+  - Added `test_base_environment_checkpoint_round_trip` demonstrating save, mutation, restore behavior.
+  - Note: the brief's import path `marble.environments.base_environment` does not exist in this repo; the file is `marble/environments/base_env.py`, so the test imports from `marble.environments.base_env`.
 
-Integrated the manager into `marble/main.py` so that every run creates a dedicated directory, redirects logging, backs up the config, and overrides `config.environment["workspace_dir"]` and `config.output["file_path"]` to point into the run directory (only when those keys exist). Updated the two sample YAML configs to use basename-only output file paths so the manager can place them in the run directory. Added unit tests in `tests/test_output_manager.py` covering directory creation and scenario resolution.
-
-### Test command(s) run and their output
-
-```bash
-python -m pytest tests/test_output_manager.py -v
+## Test result
+```
+$ python -m pytest tests/test_checkpoint_resume.py::test_base_environment_checkpoint_round_trip -v
+1 passed
 ```
 
-```
-============================= test session starts ==============================
-platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.0
-rootdir: /Users/saptarshi/workfiles/MARBLE/MARBLE
-configfile: pyproject.toml
-collected 3 items
+## Commit
+- `dc1e27d` feat: add default environment checkpoint hooks
 
-tests/test_output_manager.py::TestOutputManager::test_creates_timestamped_directories PASSED [ 33%]
-tests/test_output_manager.py::TestOutputManager::test_resolve_scenario_nested PASSED [ 66%]
-tests/test_output_manager.py::TestOutputManager::test_resolve_scenario_top_level PASSED [100%]
-
-============================== 3 passed in 0.02s ===============================
-```
-
-### Commit hash and message
-
-- **Hash:** `ca6fae66a9f5cc6bd981109bc6a7a9be79a04e54`
-- **Message:** `feat: timestamped output/log directories for every run`
-
-### Concerns or blockers
-
-None.
+## Concerns
+- The brief assumes a file named `base_environment.py`, but the repo uses `base_env.py`. Implementation was applied to the actual file, and the test import was adjusted accordingly.
+- `BaseEnvironment.__init__` signature was changed to make `config` optional. Existing callers pass both `name` and `config`, so this is backward compatible.

@@ -38,7 +38,10 @@ def update_latest_checkpoint_symlink(base_dir: Path, checkpoint_dir: Path) -> No
     latest_link = base_dir / "checkpoints" / "latest"
     if latest_link.exists() or latest_link.is_symlink():
         latest_link.unlink()
-    latest_link.symlink_to(checkpoint_dir, target_is_directory=True)
+    # Use a target relative to the symlink's own directory so the link remains
+    # valid regardless of the current working directory.
+    relative_target = os.path.relpath(checkpoint_dir, latest_link.parent)
+    latest_link.symlink_to(relative_target, target_is_directory=True)
 
 
 def copy_workspace(src: Path, dst: Path) -> None:

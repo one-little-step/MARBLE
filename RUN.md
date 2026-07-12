@@ -53,12 +53,37 @@ outputs/<scenario>/<YYYYMMDD-HHMMSS>/
 ├── development_output.jsonl # or discussion_output.jsonl, etc.
 ├── logs/
 │   └── marble.log           # full stdout + file log for the run
-└── workspace/               # coding workspace (solution.py lives here)
+├── workspace/               # coding workspace (solution.py lives here)
+└── checkpoints/             # per-iteration Engine snapshots for resume
+    ├── iter_001/
+    │   ├── engine.pkl       # pickled Engine state
+    │   ├── checkpoint.json  # metadata (timestamp, iteration, exception if any)
+    │   └── workspace/       # workspace snapshot at end of iteration
+    ├── iter_002/
+    │   └── ...
+    └── latest -> iter_001   # relative symlink to most recent successful checkpoint
 ```
 
 - `<scenario>` is inferred from the config path (e.g., `coding_config`, `test_config_research`).
 - Set `OUTPUT_ROOT_DIR` in the environment to change the root from `outputs/`.
 - Config `output.file_path` should be a basename only; the manager places it in the run directory.
+
+### Checkpoint & Resume
+
+MARBLE saves a checkpoint at the end of every successfully completed iteration. If a run fails or is interrupted, you can resume from the latest checkpoint:
+
+```bash
+python -m marble.main \
+  --config_path marble/configs/coding_config/coding_config_minimal.yaml \
+  --resume_from outputs/coding_config/<YYYYMMDD-HHMMSS>/checkpoints/latest
+```
+
+- `--resume_from` loads the pickled Engine and restores the workspace snapshot, then continues from `current_iteration` without re-running completed iterations.
+- If `--config_path` and `--resume_from` are both supplied, MARBLE compares the config hash against the checkpoint metadata and warns on mismatch.
+- The `latest` symlink is relative and cwd-independent, so it resolves correctly from any directory.
+- Failure checkpoints are written to `checkpoints/failure/`; they do **not** overwrite `latest`.
+
+**Note:** Checkpoint support currently works out of the box for coding, research, and other workspace-based scenarios. Database, Minecraft, web, and werewolf scenarios use the default workspace-copy hook; custom checkpoint logic for external state can be added by overriding `BaseEnvironment.save_checkpoint()` / `restore_checkpoint()`.
 
 ## Scenarios
 
@@ -198,14 +223,20 @@ If you stop a run midway, these files tell you what survives:
 |---|---|---|
 | `outputs/<scenario>/<timestamp>/logs/marble.log` | Append (`"a"`) | ✅ All logged lines so far |
 | `outputs/<scenario>/<timestamp>/discussion_output.jsonl` | Append (`"a"`) | ✅ All completed cycles |
-| `outputs/<scenario>/<timestamp>/development_output.jsonl` | Append (`"a"`) | ✅ All completed tasks |
+| `outputs/<scenario>/<timestamp>/development_output.jsonl` | Append (`"a"`) | ✅ All completed iterations |
 | `outputs/<scenario>/<timestamp>/workspace/solution.py` | Overwrite (`"w"`) | ❌ Only most recent solution |
+| `outputs/<scenario>/<timestamp>/checkpoints/iter_*/engine.pkl` | Pickle | ✅ Saved at end of each successful iteration |
+| `outputs/<scenario>/<timestamp>/checkpoints/iter_*/workspace/` | Copy | ✅ Snapshot of workspace at checkpoint time |
+| `outputs/<scenario>/<timestamp>/checkpoints/latest` | Symlink | ✅ Points to last successful iteration |
+| `outputs/<scenario>/<timestamp>/checkpoints/failure/` | Copy | ✅ Created on exception; contains failing state |
 | `werewolf_log/*/N-role-player_log.txt` | Append (`"a"`) | ✅ All agent actions logged so far |
 | `marble/result/result_<model>/*_RESULT.json` | Overwrite (`"w"`) | ❌ Only final result |
 | `werewolf_log/*/shared_memory.json` | Overwrite (`"w"`) | ❌ Only latest checkpoint |
 | `werewolf_log/*/checkpoint_*.json` | Overwrite (`"w"`) | ❌ Only latest checkpoint |
 
-### Quick Smoke Test
+**Important:** `development_output.jsonl` / `discussion_output.jsonl` are only appended when an iteration completes successfully. If an exception occurs, the partial iteration is *not* written to the JSONL; instead, a failure checkpoint is saved and you can resume from `latest`.
+
+### Quick Smoke Tests
 
 Verify the active LLM source works before running full simulations:
 
@@ -220,7 +251,15 @@ python -m unittest tests.test_llm_source_integration -v
 LLM_SOURCE=rits python -m unittest tests.test_llm_source_integration -v
 ```
 
+Verify checkpoint/resume mechanics with mocked LLM calls (fast, no provider needed):
+
+```bash
+python -m pytest tests/test_checkpoint_resume.py tests/test_pickle_safe_classes.py tests/test_output_manager.py -v
+```
+
 ### Known Limitations
 
 - **Werewolf speeches fail** with `deepseek-v4-flash`: The speech prompt is too complex (7 required fields, 8 steps) for this model. Night actions and votes work fine. This is a model capability issue, not a bug.
 - **Connection errors on long games**: As game state grows, API calls may timeout. This is rate limiting from the provider.
+- **Resume does not re-run completed iterations**: If the original run completed iteration *N* successfully, resuming will start iteration *N+1*. Make sure `latest` points to the iteration you want to continue from.
+- **Checkpoint size**: `engine.pkl` includes the full Engine state (agents, graph, memory). For very long runs the pickle files can become large; retention policies (e.g., `max_checkpoints`) are not yet implemented.

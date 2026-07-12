@@ -5,6 +5,7 @@ The core engine module that coordinates agents within the environment.
 """
 import json
 import pickle
+import sys
 import traceback
 from datetime import datetime
 from pathlib import Path
@@ -328,123 +329,129 @@ class Engine:
                     "coordination_mode": self.coordinate_mode,
                     "iterations": [],
                 }
-            # Initial assignment: Distribute the overall task to each agent
-            self.logger.info("Initial task distribution to all agents.")
-            initial_tasks = {
-                agent.agent_id: self.task for agent in self.graph.get_all_agents()
-            }
-            agents_results = []
-
-            # Initialize iteration_data for the initial assignment to match iterative structure
-            iteration_data = {
-                "iteration": self.current_iteration + 1,
-                "task_assignments": {},
-                "task_results": [],
-                "summary": "",
-                "continue_simulation": True,
-                "communications": [],
-            }
-            communications = []
-            for agent_id, task in initial_tasks.items():
-                try:
-                    agent = self.graph.get_agent(agent_id)
-                    self.logger.info(f"Assigning initial task to {agent_id}: {task}")
-                    # Assign the task to the agent
-                    iteration_data_task_assignments = iteration_data.get(
-                        "task_assignments"
-                    )
-                    assert isinstance(iteration_data_task_assignments, dict)
-                    iteration_data_task_assignments[agent_id] = task
-                    result, communication = agent.act(task)
-                    self.logger.info(f"Processing result for agent '{agent.agent_id}'")
-                    self.logger.info(f"Communication received: {communication}")
-                    if communication:
-                        self.logger.info(
-                            f"Adding communication to list: {communication}"
-                        )
-                        communications.append(communication)
-                    agents_results.append({agent_id: result})
-                    # Record the result
-                    task_result = {"agent_id": agent_id, "result": result}
-                    iteration_data_task_results = iteration_data.get("task_results")
-                    assert isinstance(iteration_data_task_results, list)
-                    iteration_data_task_results.append(task_result)
-                    self.logger.debug(
-                        f"Agent '{agent_id}' completed initial task with result: {result}"
-                    )
-                except KeyError:
-                    self.logger.error(f"Agent '{agent_id}' not found in the graph.")
-                except Exception as e:
-                    self.logger.error(
-                        f"Error while executing initial task for agent '{agent_id}': {e}"
-                    )
-            iteration_data["communications"] = communications
-            # Summarize outputs and update planner for the initial assignment
-            summary = self._summarize_results(agents_results)
-            self.logger.info(f"Initial Summary:\n{summary}")
-            summary = self.planner.summarize_output(
-                summary, self.task, self.output_format
-            )
-            iteration_data["summary"] = summary.content
-
-            # Decide whether to continue or terminate after initial assignment
-            if isinstance(self.environment, MinecraftEnvironment):
-                try:
-                    with open("../data/score.json", "r") as f:
-                        block_hit_rate = json.load(f)[-1]["block_hit_rate"]
-                except:
-                    block_hit_rate = 0.0
-                self.logger.info(
-                    f"Using a rule-based EnginePlanner. block_hit_rate is {block_hit_rate}"
-                )
-                continue_simulation = int(block_hit_rate) != 1
-            else:
-                continue_simulation = self.planner.decide_next_step(agents_results)
-            iteration_data["continue_simulation"] = continue_simulation
-            if not continue_simulation:
-                self.logger.info(
-                    "EnginePlanner decided to terminate the simulation after initial assignment."
-                )
-            else:
-                self.planner.update_progress(summary)
-                self.current_iteration += 1
-
-            # Evaluate communication
-            if iteration_data["communications"]:
-                iteration_data_communications = iteration_data.get("communications")
-                assert isinstance(iteration_data_communications, list)
-                # communications_str = self._format_communications(iteration_data_communications)
-                # self.evaluator.evaluate_communication(self.task, communications_str)
-                self.evaluator.metrics["communication_score"].append(-1)
-            else:
-                self.logger.info("No communications to evaluate")
-                # Store -1 if communications are empty
-                self.evaluator.metrics["communication_score"].append(-1)
-
-            # Evaluate planning
-            # agent_profiles = self._get_agent_profiles()
-            # iteration_data_task_assignments = iteration_data.get("task_assignments")
-            # assert isinstance(iteration_data_task_assignments, dict)
-            # agent_tasks_str = self._format_agent_tasks(iteration_data_task_assignments)
-            # iteration_data_task_results = iteration_data.get("task_results")
-            # assert isinstance(iteration_data_task_results, list)
-            # results_str = self._format_results(iteration_data_task_results)
-            # iteration_data_summary = iteration_data.get("summary")
-            # assert isinstance(iteration_data_summary, str)
-            # self.evaluator.evaluate_planning(iteration_data_summary, agent_profiles, agent_tasks_str, results_str)
-            # self.evaluator.evaluate_kpi(self.task, results_str)
-            self.evaluator.metrics["planning_score"].append(-1)
-
-            self.summary_data["iterations"].append(iteration_data)
-
-            # Initial assignment is a checkpoint boundary.
-            checkpoint_dir = self.save_checkpoint(
-                f"iter_{self.current_iteration:03d}"
-            )
-
             end_on_iter_0 = False
-            if not continue_simulation:
-                end_on_iter_0 = True
+            if self.current_iteration == 0:
+                # Initial assignment: Distribute the overall task to each agent
+                self.logger.info("Initial task distribution to all agents.")
+                initial_tasks = {
+                    agent.agent_id: self.task for agent in self.graph.get_all_agents()
+                }
+                agents_results = []
+
+                # Initialize iteration_data for the initial assignment to match iterative structure
+                iteration_data = {
+                    "iteration": self.current_iteration + 1,
+                    "task_assignments": {},
+                    "task_results": [],
+                    "summary": "",
+                    "continue_simulation": True,
+                    "communications": [],
+                }
+                communications = []
+                for agent_id, task in initial_tasks.items():
+                    try:
+                        agent = self.graph.get_agent(agent_id)
+                        self.logger.info(f"Assigning initial task to {agent_id}: {task}")
+                        # Assign the task to the agent
+                        iteration_data_task_assignments = iteration_data.get(
+                            "task_assignments"
+                        )
+                        assert isinstance(iteration_data_task_assignments, dict)
+                        iteration_data_task_assignments[agent_id] = task
+                        result, communication = agent.act(task)
+                        self.logger.info(f"Processing result for agent '{agent.agent_id}'")
+                        self.logger.info(f"Communication received: {communication}")
+                        if communication:
+                            self.logger.info(
+                                f"Adding communication to list: {communication}"
+                            )
+                            communications.append(communication)
+                        agents_results.append({agent_id: result})
+                        # Record the result
+                        task_result = {"agent_id": agent_id, "result": result}
+                        iteration_data_task_results = iteration_data.get("task_results")
+                        assert isinstance(iteration_data_task_results, list)
+                        iteration_data_task_results.append(task_result)
+                        self.logger.debug(
+                            f"Agent '{agent_id}' completed initial task with result: {result}"
+                        )
+                    except KeyError:
+                        self.logger.error(f"Agent '{agent_id}' not found in the graph.")
+                    except Exception as e:
+                        self.logger.error(
+                            f"Error while executing initial task for agent '{agent_id}': {e}"
+                        )
+                iteration_data["communications"] = communications
+                # Summarize outputs and update planner for the initial assignment
+                summary = self._summarize_results(agents_results)
+                self.logger.info(f"Initial Summary:\n{summary}")
+                summary = self.planner.summarize_output(
+                    summary, self.task, self.output_format
+                )
+                iteration_data["summary"] = summary.content
+
+                # Decide whether to continue or terminate after initial assignment
+                if isinstance(self.environment, MinecraftEnvironment):
+                    try:
+                        with open("../data/score.json", "r") as f:
+                            block_hit_rate = json.load(f)[-1]["block_hit_rate"]
+                    except:
+                        block_hit_rate = 0.0
+                    self.logger.info(
+                        f"Using a rule-based EnginePlanner. block_hit_rate is {block_hit_rate}"
+                    )
+                    continue_simulation = int(block_hit_rate) != 1
+                else:
+                    continue_simulation = self.planner.decide_next_step(agents_results)
+                iteration_data["continue_simulation"] = continue_simulation
+                if not continue_simulation:
+                    self.logger.info(
+                        "EnginePlanner decided to terminate the simulation after initial assignment."
+                    )
+                    end_on_iter_0 = True
+                else:
+                    self.planner.update_progress(summary)
+                    self.current_iteration += 1
+
+                # Evaluate communication
+                if iteration_data["communications"]:
+                    iteration_data_communications = iteration_data.get("communications")
+                    assert isinstance(iteration_data_communications, list)
+                    # communications_str = self._format_communications(iteration_data_communications)
+                    # self.evaluator.evaluate_communication(self.task, communications_str)
+                    self.evaluator.metrics["communication_score"].append(-1)
+                else:
+                    self.logger.info("No communications to evaluate")
+                    # Store -1 if communications are empty
+                    self.evaluator.metrics["communication_score"].append(-1)
+
+                # Evaluate planning
+                # agent_profiles = self._get_agent_profiles()
+                # iteration_data_task_assignments = iteration_data.get("task_assignments")
+                # assert isinstance(iteration_data_task_assignments, dict)
+                # agent_tasks_str = self._format_agent_tasks(iteration_data_task_assignments)
+                # iteration_data_task_results = iteration_data.get("task_results")
+                # assert isinstance(iteration_data_task_results, list)
+                # results_str = self._format_results(iteration_data_task_results)
+                # iteration_data_summary = iteration_data.get("summary")
+                # assert isinstance(iteration_data_summary, str)
+                # self.evaluator.evaluate_planning(iteration_data_summary, agent_profiles, agent_tasks_str, results_str)
+                # self.evaluator.evaluate_kpi(self.task, results_str)
+                self.evaluator.metrics["planning_score"].append(-1)
+
+                self.summary_data["iterations"].append(iteration_data)
+
+                # Initial assignment is a checkpoint boundary.
+                checkpoint_dir = self.save_checkpoint(
+                    f"iter_{self.current_iteration:03d}"
+                )
+            else:
+                # Resuming from a checkpoint: the initial assignment has already
+                # been completed and persisted. Skip directly to the iteration loop.
+                self.logger.info(
+                    "Resuming graph coordination: skipping initial assignment."
+                )
+                continue_simulation = True
 
             while self.current_iteration < self.max_iterations and not end_on_iter_0:
                 iteration_data = {
@@ -620,7 +627,12 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Graph-based coordination simulation completed.")
-            self._write_to_jsonl(self.summary_data)
+            if sys.exc_info()[0] is None:
+                self._write_to_jsonl(self.summary_data)
+            else:
+                self.logger.info(
+                    "Skipping JSONL write due to active exception; failure checkpoint saved and resume will complete output."
+                )
 
     def star_coordinate(self) -> None:
         """
@@ -789,7 +801,12 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Simulation completed.")
-            self._write_to_jsonl(self.summary_data)
+            if sys.exc_info()[0] is None:
+                self._write_to_jsonl(self.summary_data)
+            else:
+                self.logger.info(
+                    "Skipping JSONL write due to active exception; failure checkpoint saved and resume will complete output."
+                )
 
     def chain_coordinate(self) -> None:
         """
@@ -956,8 +973,13 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Chain-based coordination simulation completed.")
-            self.summary_data["token_usage"] = self._get_totoal_token_usage()
-            self._write_to_jsonl(self.summary_data)
+            if sys.exc_info()[0] is None:
+                self.summary_data["token_usage"] = self._get_totoal_token_usage()
+                self._write_to_jsonl(self.summary_data)
+            else:
+                self.logger.info(
+                    "Skipping JSONL write due to active exception; failure checkpoint saved and resume will complete output."
+                )
 
     def tree_coordinate(self) -> None:
         """
@@ -973,6 +995,18 @@ class Engine:
                     "coordination_mode": self.coordinate_mode,
                     "iterations": [],
                 }
+
+            # When resuming from a failure checkpoint, current_iteration may have
+            # been incremented at the start of the loop before the failure. If the
+            # saved state has fewer completed iterations than current_iteration,
+            # decrement so the incomplete iteration is retried.
+            completed_iterations = len(self.summary_data.get("iterations", []))
+            if self.current_iteration > completed_iterations:
+                self.logger.info(
+                    f"Detected incomplete iteration (current={self.current_iteration}, "
+                    f"completed={completed_iterations}); retrying iteration {completed_iterations + 1}."
+                )
+                self.current_iteration = completed_iterations
 
             root_agent = self.graph.get_root_agent()
             if not root_agent:
@@ -1101,7 +1135,12 @@ class Engine:
         finally:
             self.evaluator.finalize()
             self.logger.info("Tree-based coordination simulation completed.")
-            self._write_to_jsonl(self.summary_data)
+            if sys.exc_info()[0] is None:
+                self._write_to_jsonl(self.summary_data)
+            else:
+                self.logger.info(
+                    "Skipping JSONL write due to active exception; failure checkpoint saved and resume will complete output."
+                )
 
     def _execute_agent_task_recursive(self, agent: BaseAgent, task: str) -> Any:
         """
@@ -1114,6 +1153,13 @@ class Engine:
         Returns:
             Any: The result of the agent's execution.
         """
+        # Child tasks come from an LLM-parsed JSON object. The model may return
+        # either a plain string or a nested dict (e.g. {"task": "..."}).
+        # Normalize to a string to avoid TypeError during concatenation.
+        if isinstance(task, dict):
+            task = task.get("task") or json.dumps(task)
+        task = str(task)
+
         self.logger.info(f"Agent '{agent.agent_id}' is executing task.")
         tasks = []
         print(agent.children)
@@ -1126,6 +1172,9 @@ class Engine:
             communications = []
             for child in agent.children:
                 child_task = tasks_for_children.get(child.agent_id, "")
+                if isinstance(child_task, dict):
+                    child_task = child_task.get("task") or json.dumps(child_task)
+                child_task = str(child_task)
                 if child_task:
                     (
                         child_result,

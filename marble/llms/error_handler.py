@@ -1,4 +1,5 @@
 import math
+import os
 import time
 from functools import wraps
 
@@ -6,6 +7,18 @@ from beartype.typing import Any, Callable, List, Optional, Set, TypeVar, Union, 
 from pydantic import BaseModel
 
 INF = float(math.inf)
+
+
+def _get_env_retries(default: int) -> int:
+    """Allow LLM_MAX_RETRIES environment variable to override retry counts."""
+    raw = os.getenv("LLM_MAX_RETRIES")
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+        return max(0, value)
+    except ValueError:
+        return default
 
 T = TypeVar("T", bound=Callable[..., Union[Optional[List[Any]], Set[str]]])
 
@@ -28,7 +41,7 @@ def api_calling_error_exponential_backoff(
                 modified_retries = 1
                 modified_base_wait_time = 1
             else:
-                modified_retries = retries
+                modified_retries = _get_env_retries(retries)
                 modified_base_wait_time = base_wait_time
 
             attempts = 0

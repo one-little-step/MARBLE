@@ -1,127 +1,81 @@
-### Task 1: Add centralized max-token configuration
+### Task 1: Reusable pickle-safe mixin for logger-holding classes
 
 **Files:**
-- Create: `marble/llms/token_config.py`
-- Modify: `.env`
-- Modify: `marble/llms/model_prompting.py`
-- Test: `tests/test_token_config.py`
+- Create: `marble/utils/pickle_safe_mixin.py`
+- Test: `tests/test_pickle_safe_mixin.py` (temporary, can be merged into `test_checkpoint_resume.py` later)
 
 **Interfaces:**
-- Consumes: `os.environ`, `LLM_SOURCE` from `.env`
-- Produces: `get_max_token_num(preferred: Optional[int] = None) -> int`
+- Produces: `class PickleSafeLoggerMixin` with `__getstate__` / `__setstate__` that drops/recreates a logger named after the concrete class.
 
-- [ ] **Step 1: Write the env-driven token helper**
-
-Create `marble/llms/token_config.py`:
+- [ ] **Step 1: Write the failing test**
 
 ```python
-import os
-from typing import Optional
+# tests/test_pickle_safe_mixin.py
+import logging
+import pickle
+
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
 
-def get_max_token_num(preferred: Optional[int] = None, default: int = 2048) -> int:
+class DummyClass(PickleSafeLoggerMixin):
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.value = 42
+
+
+def test_pickle_preserves_data_and_recreates_logger():
+    obj = DummyClass()
+    obj.value = 100
+    pickled = pickle.dumps(obj)
+    restored = pickle.loads(pickled)
+    assert restored.value == 100
+    assert restored.logger.name == "DummyClass"
+    assert "logger" not in obj.__getstate__()
+```
+
+- [ ] **Step 2: Run test to verify it fails**
+
+Run: `python -m pytest tests/test_pickle_safe_mixin.py -v`
+
+Expected: `ImportError: cannot import name 'PickleSafeLoggerMixin'`
+
+- [ ] **Step 3: Write minimal implementation**
+
+```python
+# marble/utils/pickle_safe_mixin.py
+"""Mixin that makes logger-holding classes safe to pickle."""
+import logging
+from typing import Any, Dict
+
+
+class PickleSafeLoggerMixin:
     """
-    Return the maximum output tokens to request from the LLM.
-
-    Priority:
-      1. The `preferred` argument passed by the caller.
-      2. The `MAX_OUTPUT_TOKENS` environment variable.
-      3. The provided `default`.
-
-    Args:
-        preferred: Optional explicit value from the caller.
-        default: Fallback default if nothing else is set.
-
-    Returns:
-        int: max_tokens value to pass to the LLM API.
+    Drop the logger during pickling and recreate it on unpickling.
+    Any subclass that stores ``self.logger`` should inherit this mixin.
     """
-    if preferred is not None:
-        return preferred
-    env_value = os.environ.get("MAX_OUTPUT_TOKENS")
-    if env_value:
-        try:
-            return int(env_value)
-        except ValueError:
-            pass
-    return default
+
+    def __getstate__(self) -> Dict[str, Any]:
+        state = self.__dict__.copy()
+        if "logger" in state:
+            del state["logger"]
+        return state
+
+    def __setstate__(self, state: Dict[str, Any]) -> None:
+        self.__dict__.update(state)
+        self.logger = logging.getLogger(self.__class__.__name__)
 ```
 
-- [ ] **Step 2: Wire helper into `model_prompting.py`**
+- [ ] **Step 4: Run test to verify it passes**
 
-Modify `marble/llms/model_prompting.py`:
+Run: `python -m pytest tests/test_pickle_safe_mixin.py -v`
 
-```python
-from marble.llms.token_config import get_max_token_num
-```
+Expected: `1 passed`
 
-Update both `_model_prompting_inner` signatures and the `max_tokens` assignment so that:
-
-```python
-max_token_num = get_max_token_num(preferred=max_token_num)
-```
-
-is used before building the LiteLLM kwargs in both the tool and non-tool paths.
-
-- [ ] **Step 3: Add `MAX_OUTPUT_TOKENS` to `.env`**
-
-Append to `.env`:
+- [ ] **Step 5: Commit**
 
 ```bash
-# ---------------------------------------------------------------------------
-# Global token budget
-# ---------------------------------------------------------------------------
-MAX_OUTPUT_TOKENS=8192
-```
-
-- [ ] **Step 4: Write unit tests**
-
-Create `tests/test_token_config.py`:
-
-```python
-import os
-import pytest
-
-from marble.llms.token_config import get_max_token_num
-
-
-class TestGetMaxTokenNum:
-    def test_preferred_wins(self, monkeypatch):
-        monkeypatch.setenv("MAX_OUTPUT_TOKENS", "1000")
-        assert get_max_token_num(preferred=2048) == 2048
-
-    def test_env_used_when_no_preferred(self, monkeypatch):
-        monkeypatch.setenv("MAX_OUTPUT_TOKENS", "4096")
-        assert get_max_token_num() == 4096
-
-    def test_default_used_when_env_missing(self, monkeypatch):
-        monkeypatch.delenv("MAX_OUTPUT_TOKENS", raising=False)
-        assert get_max_token_num() == 2048
-
-    def test_default_override(self, monkeypatch):
-        monkeypatch.delenv("MAX_OUTPUT_TOKENS", raising=False)
-        assert get_max_token_num(default=1024) == 1024
-
-    def test_invalid_env_ignored(self, monkeypatch):
-        monkeypatch.setenv("MAX_OUTPUT_TOKENS", "not_a_number")
-        assert get_max_token_num() == 2048
-```
-
-- [ ] **Step 5: Run tests**
-
-Run:
-
-```bash
-source venv/bin/activate
-python -m pytest tests/test_token_config.py -v
-```
-
-Expected: 5 passed.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add marble/llms/token_config.py marble/llms/model_prompting.py .env tests/test_token_config.py
-git commit -m "feat: centralize max output tokens via MAX_OUTPUT_TOKENS env var"
+git add marble/utils/pickle_safe_mixin.py tests/test_pickle_safe_mixin.py
+git commit -m "feat: add PickleSafeLoggerMixin for checkpoint serialization"
 ```
 
 ---

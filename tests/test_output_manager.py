@@ -49,6 +49,22 @@ def test_latest_checkpoint_symlink(tmp_path):
     assert latest.resolve() == cp
 
 
+def test_latest_checkpoint_symlink_is_cwd_independent(tmp_path, monkeypatch):
+    """Regression test: latest symlink must resolve correctly from any cwd."""
+    cp = create_checkpoint_dir(tmp_path, 5)
+    update_latest_checkpoint_symlink(tmp_path, cp)
+    latest = tmp_path / "checkpoints" / "latest"
+    assert latest.is_symlink()
+    # The symlink target must be relative to the symlink's own directory.
+    target = os.readlink(latest)
+    assert not Path(target).is_absolute()
+    # Verify it resolves from a different working directory.
+    with tempfile.TemporaryDirectory() as other_dir:
+        monkeypatch.chdir(other_dir)
+        assert latest.exists()
+        assert latest.resolve() == cp
+
+
 def test_copy_workspace(tmp_path):
     src = tmp_path / "src"
     src.mkdir()

@@ -1,36 +1,80 @@
-## Task 2 Report
+# Task 2 Report
 
-### Status
-DONE
+## Change
+Applied `PickleSafeLoggerMixin` to the core simulation state classes so the `Engine` can be pickled for checkpointing:
 
-### Summary of Changes
-- Modified `marble/environments/coding_utils/coder.py` to allow `create_solution_handler` to overwrite an existing `solution.py` when it is empty (size 0), while still refusing to overwrite non-empty files. Also replaced the hardcoded `max_token_num=4096` with `get_max_token_num(default=4096)` and added the corresponding import from `marble.llms.token_config`.
-- Updated `marble/environments/coding_utils/reviewer.py` and `marble/environments/coding_utils/debugger.py` to import `get_max_token_num` and use it for all `model_prompting` calls (defaulting to 4096 and 2048 respectively), so coding helpers respect the environment token budget.
-- Added `tests/test_coding_recovery.py` with two unit tests: one verifying that an empty existing `solution.py` is allowed through, and another verifying that a non-empty existing `solution.py` is refused.
+- `marble/agent/base_agent.py`
+- `marble/graph/agent_graph.py`
+- `marble/memory/base_memory.py`
+- `marble/memory/shared_memory.py`
+- `marble/evaluator/evaluator.py`
+- `marble/engine/engine_planner.py`
 
-### Test Command(s) Run and Output
+Also created `tests/test_pickle_safe_classes.py` to verify that the state classes round-trip through `pickle.dumps` / `pickle.loads`.
+
+## Additional Pickle-Safe Handling Discovered During Testing
+
+Two classes required extra `__getstate__` / `__setstate__` logic beyond the mixin:
+
+1. `SharedMemory` (`marble/memory/shared_memory.py`) holds a `threading.Lock`, which is not pickleable. Added custom `__getstate__` to drop the lock and `__setstate__` to recreate it.
+2. `BaseAgent` (`marble/agent/base_agent.py`) initializes `self.msg_box` as `defaultdict(lambda: defaultdict(list))`. The nested lambda is not pickleable. Added custom `__getstate__` to convert the `defaultdict` to a plain `dict` for serialization and `__setstate__` to restore it as a `defaultdict` after deserialization.
+
+## Test Note
+
+The test in the brief used a single agent (`agent_id: a1`) with `coding_config_minimal.yaml`, which declares relationships between `agent1` and `agent2`. This caused `AgentGraph.__init__` to raise `ValueError: Source agent 'agent1' does not exist.`. The test was adjusted to create two agents with IDs matching the config (`agent1` and `agent2`), which is the minimal change needed to make the test valid.
+
+## Test Command and Output
+
 ```bash
-python -m pytest tests/test_coding_recovery.py -v
+python -m pytest tests/test_pickle_safe_classes.py -v
 ```
 
 ```
 ============================= test session starts ==============================
-platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.0.0 -- /Users/saptarshi/workfiles/MARBLE/MARBLE/venv/bin/python
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.1 -- /Users/saptarshi/workfiles/MARBLE/MARBLE/venv/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/saptarshi/workfiles/MARBLE/MARBLE
+configfile: pyproject.toml
+plugins: anyio-4.12.1
+collecting ... collected 1 item
+
+tests/test_pickle_safe_classes.py::test_engine_state_classes_are_pickleable PASSED [100%]
+
+============================== 1 passed, 2 warnings in 8.08s ===============================
+```
+
+## Commit
+
+- SHA: `b340c61`
+- Subject: `feat: make core state classes pickle-safe`
+
+## Follow-up Fix
+
+- File: `marble/memory/shared_memory.py`
+- Change: `__getstate__` now delegates to `super().__getstate__()` so `PickleSafeLoggerMixin` drops the logger, then removes the non-pickleable `threading.Lock`. `__setstate__` now calls `super().__setstate__(state)` to recreate the logger before recreating the lock.
+
+### Test Command and Output
+
+```bash
+python -m pytest tests/test_pickle_safe_classes.py tests/test_pickle_safe_mixin.py -v
+```
+
+```
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/saptarshi/workfiles/MARBLE/MARBLE/venv/bin/python
 cachedir: .pytest_cache
 rootdir: /Users/saptarshi/workfiles/MARBLE/MARBLE
 configfile: pyproject.toml
 plugins: anyio-4.12.1
 collecting ... collected 2 items
 
-tests/test_coding_recovery.py::TestCodingRecovery::test_overwrites_empty_solution PASSED [ 50%]
-tests/test_coding_recovery.py::TestCodingRecovery::test_refuses_non_empty_solution PASSED [100%]
+tests/test_pickle_safe_classes.py::test_engine_state_classes_are_pickleable PASSED [ 50%]
+tests/test_pickle_safe_mixin.py::test_pickle_preserves_data_and_recreates_logger PASSED [100%]
 
-======================== 2 passed, 2 warnings in 6.17s =========================
+============================== 2 passed, 2 warnings in 7.30s ==========================
 ```
 
-### Commit Hash and Message
-- **Hash:** `42fb6a5f37eb1fad73e186249daa86d0a7149da8`
-- **Message:** `feat: coding tools use env token budget and overwrite empty solution.py`
+### Follow-up Commit
 
-### Concerns or Blockers
-None.
+- SHA: `47473f1`
+- Subject: `fix(shared_memory): delegate getstate/setstate to PickleSafeLoggerMixin`

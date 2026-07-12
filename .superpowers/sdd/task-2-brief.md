@@ -1,127 +1,112 @@
-### Task 2: Recover coding loop from empty solution.py
+### Task 2: Apply pickle-safe mixin to Engine state classes
 
 **Files:**
-- Modify: `marble/environments/coding_utils/coder.py`
-- Modify: `marble/environments/coding_utils/reviewer.py`
-- Modify: `marble/environments/coding_utils/debugger.py`
-- Test: `tests/test_coding_recovery.py`
+- Modify: `marble/agent/base_agent.py`
+- Modify: `marble/graph/agent_graph.py`
+- Modify: `marble/memory/base_memory.py`
+- Modify: `marble/memory/shared_memory.py`
+- Modify: `marble/evaluator/evaluator.py`
+- Modify: `marble/engine/engine_planner.py`
+- Test: `tests/test_pickle_safe_classes.py` (or add to `tests/test_checkpoint_resume.py`)
 
 **Interfaces:**
-- Consumes: `get_max_token_num()` from Task 1, `env.workspace_dir`
-- Produces: `create_solution_handler` now overwrites empty existing files; coding helpers use the env token budget.
+- Consumes: `PickleSafeLoggerMixin` from Task 1.
+- Produces: Each listed class is pickle-safe.
 
-- [ ] **Step 1: Update `create_solution_handler` to overwrite empty files**
+- [ ] **Step 1: Add mixin to classes**
 
-In `marble/environments/coding_utils/coder.py`, replace:
+For each file below, make exactly these changes:
 
+`marble/agent/base_agent.py`:
 ```python
-        if os.path.exists(full_path):
-            return {
-                "success": False,
-                "error-msg": f"Solution file already exists at {full_path}. Operation aborted.",
-            }
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
+
+class BaseAgent(PickleSafeLoggerMixin):
+    ...
 ```
 
-with:
-
+`marble/graph/agent_graph.py`:
 ```python
-        if os.path.exists(full_path):
-            existing_size = os.path.getsize(full_path)
-            if existing_size > 0:
-                return {
-                    "success": False,
-                    "error-msg": f"Solution file already exists at {full_path}. Operation aborted.",
-                }
-            # Empty file: safe to overwrite so the simulation can recover.
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
+
+class AgentGraph(PickleSafeLoggerMixin):
+    ...
 ```
 
-- [ ] **Step 2: Use env-driven max tokens in coder.py**
-
-Replace the literal `max_token_num=4096` in `create_solution_handler` with:
-
+`marble/memory/base_memory.py`:
 ```python
-from marble.llms.token_config import get_max_token_num
-...
-        response = model_prompting(
-            model_name,
-            messages=[...],
-            return_num=1,
-            max_token_num=get_max_token_num(default=4096),
-            temperature=0.0,
-        )[0]
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
+
+class BaseMemory(PickleSafeLoggerMixin):
+    ...
 ```
 
-- [ ] **Step 3: Apply env token budget to reviewer.py and debugger.py**
-
-In `marble/environments/coding_utils/reviewer.py`, add at the top:
-
+`marble/memory/shared_memory.py`:
 ```python
-from marble.llms.token_config import get_max_token_num
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
+
+class SharedMemory(PickleSafeLoggerMixin):
+    ...
 ```
 
-Replace both `max_token_num=4096` calls with `max_token_num=get_max_token_num(default=4096)`.
-
-In `marble/environments/coding_utils/debugger.py`, add:
-
+`marble/evaluator/evaluator.py`:
 ```python
-from marble.llms.token_config import get_max_token_num
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
+
+class Evaluator(PickleSafeLoggerMixin):
+    ...
 ```
 
-Replace both `max_token_num=2048` calls with `max_token_num=get_max_token_num(default=2048)`.
-
-- [ ] **Step 4: Write recovery test**
-
-Create `tests/test_coding_recovery.py`:
-
+`marble/engine/engine_planner.py`:
 ```python
-import os
-import tempfile
+from marble.utils.pickle_safe_mixin import PickleSafeLoggerMixin
 
-from marble.environments.coding_utils.coder import create_solution_handler
-
-
-class DummyEnv:
-    def __init__(self, workspace):
-        self.workspace_dir = workspace
-
-
-class TestCodingRecovery:
-    def test_overwrites_empty_solution(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            env = DummyEnv(tmp)
-            empty_path = os.path.join(tmp, "solution.py")
-            open(empty_path, "w").close()
-
-            # We cannot call the real LLM in a unit test, so just verify the
-            # existence check now allows empty files through.
-            assert os.path.exists(empty_path)
-            assert os.path.getsize(empty_path) == 0
-
-    def test_refuses_non_empty_solution(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            env = DummyEnv(tmp)
-            full_path = os.path.join(tmp, "solution.py")
-            with open(full_path, "w") as f:
-                f.write("print('hello')")
-
-            result = create_solution_handler(env, "task", "dummy-model")
-            assert result["success"] is False
-            assert "already exists" in result["error-msg"]
+class EnginePlanner(PickleSafeLoggerMixin):
+    ...
 ```
 
-- [ ] **Step 5: Run tests**
+- [ ] **Step 2: Write the test**
+
+```python
+# tests/test_pickle_safe_classes.py
+import pickle
+
+from marble.agent.base_agent import BaseAgent
+from marble.configs.config import Config
+from marble.environments.base_environment import BaseEnvironment
+from marble.evaluator.evaluator import Evaluator
+from marble.graph.agent_graph import AgentGraph
+from marble.memory.base_memory import BaseMemory
+from marble.memory.shared_memory import SharedMemory
+
+
+def test_engine_state_classes_are_pickleable():
+    env = BaseEnvironment(name="Test Env", config={"workspace_dir": "/tmp"})
+    agent = BaseAgent(config={"agent_id": "a1", "profile": "test"}, env=env)
+    config = Config.load("marble/configs/coding_config/coding_config_minimal.yaml")
+    graph = AgentGraph([agent], config)
+    memory = SharedMemory()
+    evaluator = Evaluator(metrics_config={})
+
+    for obj in [env, agent, graph, memory, evaluator]:
+        pickled = pickle.dumps(obj)
+        restored = pickle.loads(pickled)
+        assert restored is not obj
+```
+
+- [ ] **Step 3: Run test to verify it passes**
+
+Run: `python -m pytest tests/test_pickle_safe_classes.py -v`
+
+Expected: `1 passed` (or failures that expose additional non-pickleable attributes; fix inline)
+
+- [ ] **Step 4: Commit**
 
 ```bash
-python -m pytest tests/test_coding_recovery.py -v
-```
-
-Expected: 2 passed.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add marble/environments/coding_utils/coder.py marble/environments/coding_utils/reviewer.py marble/environments/coding_utils/debugger.py tests/test_coding_recovery.py
-git commit -m "feat: coding tools use env token budget and overwrite empty solution.py"
+git add marble/agent/base_agent.py marble/graph/agent_graph.py marble/memory/base_memory.py \
+        marble/memory/shared_memory.py marble/evaluator/evaluator.py marble/engine/engine_planner.py \
+        tests/test_pickle_safe_classes.py
+git commit -m "feat: make core state classes pickle-safe"
 ```
 
 ---

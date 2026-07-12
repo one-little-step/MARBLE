@@ -3,8 +3,6 @@ import os
 import re
 from typing import Any, Dict
 
-from ruamel.yaml import YAML
-
 from marble.llms.client_factory import get_model_name
 from marble.llms.model_prompting import model_prompting
 from marble.llms.token_config import get_max_token_num
@@ -27,7 +25,7 @@ def create_solution_handler(
 
     Args:
         env: The environment instance.
-        task_description (str): Task description.
+        task_description (str): Full task description used to generate the solution.
         model_name (str): Name of the LLM model to use.
         file_path (str): File path, defaults to solution.py.
 
@@ -47,18 +45,7 @@ def create_solution_handler(
                 }
             # Empty file: safe to overwrite so the simulation can recover.
 
-        config_path = "marble/configs/coding_config/coding_config.yaml"
-        if not os.path.exists(config_path):
-            return {
-                "success": False,
-                "error-msg": f"Config file not found at {config_path}",
-            }
-
-        yaml = YAML()
-        with open(config_path, "r", encoding="utf-8") as f:
-            config = yaml.load(f)
-
-        full_task_description = config["task"]["content"]
+        full_task_description = task_description
 
         requirements_start = "1. Implementation requirements:\n"
         requirements_end = "\n\n2. Project structure:"
